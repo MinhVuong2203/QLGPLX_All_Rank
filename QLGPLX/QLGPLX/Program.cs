@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLGPLX.Data;
 using QLGPLX.Mapping;
-using QLGPLX.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,10 +40,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Port deloy
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Urls.Add($"http://*:{port}");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
