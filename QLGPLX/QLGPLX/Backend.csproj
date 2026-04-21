@@ -18,4 +18,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\DAI HOC\PhanTichThietKeHuongDoiTuong\BaiTapLon\QLGPLX_All_Rank\QLGPLX\QLGPLX\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\DAI HOC\PhanTichThietKeHuongDoiTuong\BaiTapLon\QLGPLX_All_Rank\QLGPLX\QLGPLX\.editorconfig" />
+  </ItemGroup>
+
 </Project>
