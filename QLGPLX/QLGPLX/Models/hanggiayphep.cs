@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class hanggiayphep
+[Table("hanggiayphep")]
+public partial class Hanggiayphep
 {
+    [Key]
+    [StringLength(10)]
     public string MaHang { get; set; } = null!;
 
+    [StringLength(50)]
     public string TenHang { get; set; } = null!;
 
+    [StringLength(50)]
     public string? LoaiXe { get; set; }
 
     public int? DoTuoiToiThieu { get; set; }
@@ -17,13 +25,18 @@ public partial class hanggiayphep
 
     public bool? YeuCauThucHanh { get; set; }
 
+    [Column(TypeName = "text")]
     public string? MoTaChiTiet { get; set; }
 
-    public virtual ICollection<giayphep> giaypheps { get; set; } = new List<giayphep>();
+    [InverseProperty("MaHangNavigation")]
+    public virtual ICollection<Giayphep> Giaypheps { get; set; } = new List<Giayphep>();
 
-    public virtual ICollection<hang_mon_thi> hang_mon_this { get; set; } = new List<hang_mon_thi>();
+    [InverseProperty("MaHangNavigation")]
+    public virtual ICollection<HangMonThi> HangMonThis { get; set; } = new List<HangMonThi>();
 
-    public virtual ICollection<hoso> hosos { get; set; } = new List<hoso>();
+    [InverseProperty("MaHangNavigation")]
+    public virtual ICollection<Hoso> Hosos { get; set; } = new List<Hoso>();
 
-    public virtual ICollection<kythi> kythis { get; set; } = new List<kythi>();
+    [InverseProperty("MaHangNavigation")]
+    public virtual ICollection<Kythi> Kythis { get; set; } = new List<Kythi>();
 }

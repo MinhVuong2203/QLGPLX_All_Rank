@@ -1,0 +1,19 @@
+﻿.congdan-page {
+    padding: 20px;
+}
+
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}

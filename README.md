@@ -164,14 +164,33 @@ Hệ thống tập trung vào:
 
 ## Cấu trúc thư mục
 ```
-├── GplxManagementApplication.java   (main)
+├QLGPLX/
 │
-├── controller/     ( nhận request (API))
-├── service/        ( xử lý logic)
-├── repository/     ( làm việc DB)
-├── entity/         ( mapping bảng DB)
-├── dto/            ( dữ liệu truyền (request/response))
-├── config/         ( cấu hình (security, cors…))
-├── exception/      ( xử lý lỗi global)
-└── util/           ( helper (nếu cần))
+├── Controllers/
+│   └── CongDanController.cs
+│
+├── Models/
+│   └── CongDan.cs
+│
+├── Data/
+│   └── GplxDbContext.cs
+│
+├── DTOs/
+│   └── CongDanDTO.cs
+│
+├── Services/
+│   ├── Interfaces/
+│   │   └── ICongDanService.cs
+|   └── CongDanService.cs
+│
+├── Repositories/
+│   └── CongDanRepository.cs
+│
+├── Mappings/
+│   └── AutoMapperProfile.cs
+│
+├── appsettings.json
+├── Program.cs
 ```
+
+Chuỗi Scaffold: Scaffold-DbContext "server=localhost;database=;user=;password=;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -ContextDir Data -Context GplxDbContext -DataAnnotations -NoOnConfiguring -Force

@@ -1,27 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class ketquathi
+[Table("ketquathi")]
+[Index("HoSoId", "KyThiId", "LanThi", Name = "HoSoID", IsUnique = true)]
+[Index("KyThiId", Name = "KyThiID")]
+public partial class Ketquathi
 {
-    public int KetQuaID { get; set; }
+    [Key]
+    [Column("KetQuaID")]
+    public int KetQuaId { get; set; }
 
-    public int? HoSoID { get; set; }
+    [Column("HoSoID")]
+    public int? HoSoId { get; set; }
 
-    public int? KyThiID { get; set; }
+    [Column("KyThiID")]
+    public int? KyThiId { get; set; }
 
+    [StringLength(20)]
     public string? KetQuaTongHop { get; set; }
 
+    [Column(TypeName = "datetime")]
     public DateTime? NgayKetLuan { get; set; }
 
     public int? LanThi { get; set; }
 
+    [StringLength(255)]
     public string? GhiChu { get; set; }
 
-    public virtual hoso? HoSo { get; set; }
+    [ForeignKey("HoSoId")]
+    [InverseProperty("Ketquathis")]
+    public virtual Hoso? HoSo { get; set; }
 
-    public virtual kythi? KyThi { get; set; }
+    [InverseProperty("KetQuaNavigation")]
+    public virtual ICollection<Ketquachitiet> Ketquachitiets { get; set; } = new List<Ketquachitiet>();
 
-    public virtual ICollection<ketquachitiet> ketquachitiets { get; set; } = new List<ketquachitiet>();
+    [ForeignKey("KyThiId")]
+    [InverseProperty("Ketquathis")]
+    public virtual Kythi? KyThi { get; set; }
 }

@@ -1,0 +1,75 @@
+﻿@page "/ds_congdan"
+@using DTO.Congdan
+@inject HttpClient Http
+
+<link href="css/ds_congdan.css" rel="stylesheet" />
+
+<div class="congdan-page">
+
+    <div class="toolbar">
+        <input @bind="search" placeholder="Tìm kiếm..." />
+        <button @onclick="LoadData">Lọc</button>
+    </div>
+
+    <div class="card">
+
+        <div class="card-header">
+            <span>Công dân</span>
+            <span>Tổng: @congdan.Count</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Tuổi</th>
+                    <th>Giới tính</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (congdan.Count == 0)
+                {
+                    <tr><td colspan="4">Chưa có dữ liệu</td></tr>
+                }
+                else
+                {
+                    @foreach (var cd in congdan)
+                    {
+                        <tr>
+                            <td>@cd.HoTen</td>
+                            <td>@cd.Tuoi</td>
+                            <td>@cd.GioiTinh</td>
+                            <td>
+                                <button @onclick="() => Delete(cd.PublicId)">Xóa</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@code {
+    List<CongdanDTO> congdan = new();
+    string search = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        congdan = await Http.GetFromJsonAsync<List<CongdanDTO>>("api/CongDan");
+    }
+
+    async Task Delete(Guid? id)
+    {
+        await Http.DeleteAsync($"api/CongDan/{id}");
+        await LoadData();
+    }
+}

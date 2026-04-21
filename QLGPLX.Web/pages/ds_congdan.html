@@ -1,0 +1,73 @@
+<div class="container-fluid py-3 congdan-page">
+    <div class="row g-3 align-items-center mb-2">
+        <div class="col-12 col-md">
+            <h1 class="h4 mb-1">Danh sách công dân</h1>
+            <div class="text-muted small">Quản lý thông tin công dân (theo CongdanDTO)</div>
+        </div>
+
+        <div class="col-12 col-md-auto">
+            <div class="input-group">
+                <span class="input-group-text">Tìm</span>
+                <input class="form-control" id="congdanSearchInput" type="text" placeholder="Họ tên / SĐT / Email..." />
+                <button class="btn btn-outline-secondary" id="congdanFilterBtn" type="button">Lọc</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+            <div class="d-flex gap-2 align-items-center">
+                <span class="fw-semibold">Công dân</span>
+                <span class="badge text-bg-primary" id="congdanTotalBadge">Tổng: 0</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" type="button">Thêm công dân</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button">Xuất Excel</button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:72px">Ảnh</th>
+                            <th>Họ tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Tuổi</th>
+                            <th>Giới tính</th>
+                            <th>SĐT</th>
+                            <th>Email</th>
+                            <th>Địa chỉ</th>
+                            <th>Sức khỏe</th>
+                            <th>Ngày khám</th>
+                            <th>Giấy khám</th>
+                            <th style="width:120px">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="congdanTableBody">
+                        <!-- Hàng “trống” khi chưa có dữ liệu -->
+                        <tr id="congdanNoDataRow">
+                            <td colspan="12" class="text-center text-muted py-4">
+                                Chưa có dữ liệu công dân.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex flex-wrap gap-2 align-items-center justify-content-between">
+            <div class="text-muted small" id="congdanPagingText">Hiển thị 0–0 / 0</div>
+
+            <nav aria-label="Phân trang">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Sau</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

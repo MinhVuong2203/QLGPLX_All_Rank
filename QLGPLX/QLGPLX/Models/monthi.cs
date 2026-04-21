@@ -1,19 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class monthi
+[Table("monthi")]
+public partial class Monthi
 {
-    public int MonThiID { get; set; }
+    [Key]
+    [Column("MonThiID")]
+    public int MonThiId { get; set; }
 
+    [StringLength(100)]
     public string TenMon { get; set; } = null!;
 
+    [StringLength(255)]
     public string? MoTa { get; set; }
 
-    public virtual ICollection<hang_mon_thi> hang_mon_this { get; set; } = new List<hang_mon_thi>();
+    [InverseProperty("MonThi")]
+    public virtual ICollection<HangMonThi> HangMonThis { get; set; } = new List<HangMonThi>();
 
-    public virtual ICollection<ketquachitiet> ketquachitiets { get; set; } = new List<ketquachitiet>();
+    [InverseProperty("MonThi")]
+    public virtual ICollection<Ketquachitiet> Ketquachitiets { get; set; } = new List<Ketquachitiet>();
 
-    public virtual ICollection<lichthi> lichthis { get; set; } = new List<lichthi>();
+    [InverseProperty("MonThi")]
+    public virtual ICollection<Lichthi> Lichthis { get; set; } = new List<Lichthi>();
 }
