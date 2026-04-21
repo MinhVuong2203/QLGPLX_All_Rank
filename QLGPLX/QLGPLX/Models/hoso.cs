@@ -1,31 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class hoso
+[Table("hoso")]
+[Index("MaCongDan", Name = "MaCongDan")]
+[Index("MaHang", Name = "MaHang")]
+[Index("PublicId", Name = "public_id", IsUnique = true)]
+public partial class Hoso
 {
-    public int HoSoID { get; set; }
+    [Key]
+    [Column("HoSoID")]
+    public int HoSoId { get; set; }
 
-    public Guid? public_id { get; set; }
+    [Column("public_id")]
+    public Guid? PublicId { get; set; }
 
     public int MaCongDan { get; set; }
 
+    [StringLength(10)]
     public string MaHang { get; set; } = null!;
 
+    [Column(TypeName = "datetime")]
     public DateTime? NgayNop { get; set; }
 
+    [StringLength(30)]
     public string? TrangThai { get; set; }
 
     public bool? TrangThaiThanhToan { get; set; }
 
+    [StringLength(255)]
     public string? GhiChu { get; set; }
 
-    public virtual congdan MaCongDanNavigation { get; set; } = null!;
+    [InverseProperty("HoSo")]
+    public virtual ICollection<CanboHoso> CanboHosos { get; set; } = new List<CanboHoso>();
 
-    public virtual hanggiayphep MaHangNavigation { get; set; } = null!;
+    [InverseProperty("HoSo")]
+    public virtual ICollection<Ketquathi> Ketquathis { get; set; } = new List<Ketquathi>();
 
-    public virtual ICollection<canbo_hoso> canbo_hosos { get; set; } = new List<canbo_hoso>();
+    [ForeignKey("MaCongDan")]
+    [InverseProperty("Hosos")]
+    public virtual Congdan MaCongDanNavigation { get; set; } = null!;
 
-    public virtual ICollection<ketquathi> ketquathis { get; set; } = new List<ketquathi>();
+    [ForeignKey("MaHang")]
+    [InverseProperty("Hosos")]
+    public virtual Hanggiayphep MaHangNavigation { get; set; } = null!;
 }

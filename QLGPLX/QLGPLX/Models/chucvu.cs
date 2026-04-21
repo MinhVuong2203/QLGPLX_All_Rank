@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class chucvu
+[Table("chucvu")]
+[Index("TenChucVu", Name = "TenChucVu", IsUnique = true)]
+public partial class Chucvu
 {
+    [Key]
     public int MaChucVu { get; set; }
 
+    [StringLength(50)]
     public string? TenChucVu { get; set; }
 
-    public virtual ICollection<canbo> canbos { get; set; } = new List<canbo>();
+    [InverseProperty("MaChucVuNavigation")]
+    public virtual ICollection<Canbo> Canbos { get; set; } = new List<Canbo>();
 }

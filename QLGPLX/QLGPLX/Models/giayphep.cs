@@ -1,16 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QLGPLX.Models;
 
-public partial class giayphep
+[Table("giayphep")]
+[Index("MaCongDan", Name = "MaCongDan")]
+[Index("MaHang", Name = "MaHang")]
+[Index("SoGiayPhep", Name = "SoGiayPhep", IsUnique = true)]
+public partial class Giayphep
 {
-    public int GiayPhepID { get; set; }
+    [Key]
+    [Column("GiayPhepID")]
+    public int GiayPhepId { get; set; }
 
     public int? MaCongDan { get; set; }
 
+    [StringLength(10)]
     public string? MaHang { get; set; }
 
+    [StringLength(20)]
     public string? SoGiayPhep { get; set; }
 
     public DateOnly? NgayCap { get; set; }
@@ -19,13 +30,20 @@ public partial class giayphep
 
     public int? SoDiem { get; set; }
 
+    [StringLength(30)]
     public string? TrangThai { get; set; }
 
+    [StringLength(255)]
     public string? GhiChu { get; set; }
 
-    public virtual congdan? MaCongDanNavigation { get; set; }
+    [ForeignKey("MaCongDan")]
+    [InverseProperty("Giaypheps")]
+    public virtual Congdan? MaCongDanNavigation { get; set; }
 
-    public virtual hanggiayphep? MaHangNavigation { get; set; }
+    [ForeignKey("MaHang")]
+    [InverseProperty("Giaypheps")]
+    public virtual Hanggiayphep? MaHangNavigation { get; set; }
 
-    public virtual ICollection<vipham> viphams { get; set; } = new List<vipham>();
+    [InverseProperty("GiayPhep")]
+    public virtual ICollection<Vipham> Viphams { get; set; } = new List<Vipham>();
 }

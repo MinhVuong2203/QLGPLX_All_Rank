@@ -1,0 +1,82 @@
+﻿<header class="main-header">
+
+    <!-- LEFT -->
+    <div class="header-left">
+        <button class="sidebar-toggle" @onclick="ToggleSidebar">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="header-breadcrumb">
+            <span class="breadcrumb-icon">🏠</span>
+            <span class="breadcrumb-text">@CurrentPage</span>
+        </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+        <div class="header-search">
+            <input type="text" placeholder="Tìm kiếm..." />
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+
+        <!-- Theme -->
+        <button class="header-btn" @onclick="ToggleTheme">
+            🌙
+        </button>
+
+        <!-- Notification -->
+        <button class="header-btn notif-btn">
+            🔔 <span class="notif-badge">3</span>
+        </button>
+
+        <!-- User -->
+        <div class="header-user" @onclick="ToggleDropdown">
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+                <span class="user-name">Admin</span>
+                <span class="user-role">Quản trị viên</span>
+            </div>
+
+            @if (showDropdown)
+            {
+                <div class="user-dropdown">
+                    <a href="#">Hồ sơ</a>
+                    <a href="#">Cài đặt</a>
+                    <hr />
+                    <a href="#" @onclick="Logout">Đăng xuất</a>
+                </div>
+            }
+        </div>
+
+    </div>
+
+</header>
+
+@code {
+    bool showDropdown = false;
+
+    string CurrentPage = "Trang chủ";
+
+    void ToggleSidebar()
+    {
+        // sau này làm collapse sidebar
+    }
+
+    void ToggleTheme()
+    {
+        // sau này làm dark mode
+    }
+
+    void ToggleDropdown()
+    {
+        showDropdown = !showDropdown;
+    }
+
+    void Logout()
+    {
+        Console.WriteLine("Logout");
+    }
+}
