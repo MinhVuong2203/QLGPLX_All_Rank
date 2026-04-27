@@ -1,4 +1,4 @@
-﻿<header class="main-header">
+<header class="main-header">
 
     <!-- LEFT -->
     <div class="header-left">
@@ -7,7 +7,7 @@
         </button>
 
         <div class="header-breadcrumb">
-            <span class="breadcrumb-icon">🏠</span>
+            <span class="breadcrumb-icon">??</span>
             <span class="breadcrumb-text">@CurrentPage</span>
         </div>
     </div>
@@ -15,7 +15,7 @@
     <!-- CENTER -->
     <div class="header-center">
         <div class="header-search">
-            <input class="search-input" type="text" placeholder="Tìm kiếm..." />
+            <input type="text" placeholder="T�m ki?m..." />
         </div>
     </div>
 
@@ -23,14 +23,13 @@
     <div class="header-right">
 
         <!-- Theme -->
-        <button class="header-btn" type="button" title="Đổi giao diện" @onclick="ToggleTheme">
-            <span class="icon-moon">🌙</span>
-            <span class="icon-sun">☀️</span>
+        <button class="header-btn" type="button" title="??i giao di?n" @onclick="ToggleTheme">
+            @(Layout?.IsDarkTheme == true ? "??" : "??")
         </button>
 
         <!-- Notification -->
         <button class="header-btn notif-btn" type="button">
-            🔔 <span class="notif-badge">3</span>
+            ?? <span class="notif-badge">3</span>
         </button>
 
         <!-- User -->
@@ -38,16 +37,16 @@
             <div class="user-avatar">A</div>
             <div class="user-info">
                 <span class="user-name">Admin</span>
-                <span class="user-role">Quản trị viên</span>
+                <span class="user-role">Qu?n tr? vi�n</span>
             </div>
 
             @if (showDropdown)
             {
-                <div class="user-dropdown">
-                    <a href="#">Hồ sơ</a>
-                    <a href="#">Cài đặt</a>
+                <div class="user-dropdown" @onclick:stopPropagation>
+                    <a href="#">H? s?</a>
+                    <a href="#">C�i ??t</a>
                     <hr />
-                    <a href="#" @onclick="Logout">Đăng xuất</a>
+                    <a href="#" @onclick="Logout">??ng xu?t</a>
                 </div>
             }
         </div>
@@ -61,17 +60,15 @@
 
     bool showDropdown = false;
 
-    string CurrentPage = "Trang chủ";
+    string CurrentPage = "Trang ch?";
 
     void ToggleSidebar()
     {
-        Console.WriteLine("CLICK SIDEBAR");
         Layout?.ToggleSidebar();
     }
 
     void ToggleTheme()
     {
-        Console.WriteLine("CLICK THEME");
         Layout?.ToggleTheme();
     }
 
