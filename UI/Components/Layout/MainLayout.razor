@@ -1,15 +1,35 @@
-﻿@inherits LayoutComponentBase
-<div class="app-shell">
+@inherits LayoutComponentBase
 
-    <NavMenu />
+<CascadingValue Value="this">
+    <div class="app-shell @(SidebarCollapsed ? "sidebar-collapsed" : string.Empty)"
+         data-theme="@(IsDarkTheme ? "dark" : "light")">
+        <NavMenu />
 
-    <div class="app-content">
-        <Header />
-        <!-- PAGE -->
-        <main class="page-main">
-            @Body
-        </main>
-        <Footer />
-      
+        <div class="app-content">
+            <Header />
+            <!-- PAGE -->
+            <main class="page-main">
+                @Body
+            </main>
+            <Footer />
+
+        </div>
     </div>
-</div>
+</CascadingValue>
+
+@code {
+    public bool SidebarCollapsed { get; set; }
+    public bool IsDarkTheme { get; set; }
+
+    public void ToggleSidebar()
+    {
+        SidebarCollapsed = !SidebarCollapsed;
+        StateHasChanged();
+    }
+
+    public void ToggleTheme()
+    {
+        IsDarkTheme = !IsDarkTheme;
+        StateHasChanged();
+    }
+}

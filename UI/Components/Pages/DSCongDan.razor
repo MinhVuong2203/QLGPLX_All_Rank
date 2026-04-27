@@ -5,57 +5,183 @@
 <link href="css/ds_congdan.css" rel="stylesheet" />
 
 <div class="congdan-page">
+    
+    <div class="page-header">
+        <h1>Quản lý công dân</h1>
+        <p class="subtitle">Danh sách công dân và thông tin chi tiết</p>
+    </div>
 
     <div class="toolbar">
-        <input @bind="search" placeholder="Tìm kiếm..." />
-        <button @onclick="LoadData">Lọc</button>
+        <div class="toolbar-left">
+            <div class="search-box">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input @bind="searchCCCD" @bind:event="oninput" placeholder="Tìm theo CCCD..." class="search-input" />
+            </div>
+
+            <div class="date-picker">
+                <svg class="calendar-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="date" @bind="selectedDate" class="date-input" />
+            </div>
+        </div>
+
+        <div class="toolbar-right">
+            <button class="btn-filter" @onclick="FilterData">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 6h12M6 10h8M8 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Lọc
+            </button>
+            <button class="btn-primary" @onclick="ResetFilter">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Xóa lọc
+            </button>
+        </div>
     </div>
 
     <div class="card">
-
         <div class="card-header">
-            <span>Công dân</span>
-            <span>Tổng: @congdan.Count</span>
+            <div class="header-left">
+                <h2>Danh sách công dân</h2>
+                <span class="count-badge">@filteredCongdan.Count người</span>
+            </div>
+            <div class="header-right">
+                <span class="text-muted">Trang @currentPage/@totalPages</span>
+            </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Họ tên</th>
-                    <th>Tuổi</th>
-                    <th>Giới tính</th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @if (congdan.Count == 0)
-                {
-                    <tr><td colspan="4">Chưa có dữ liệu</td></tr>
-                }
-                else
-                {
-                    @foreach (var cd in congdan)
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ và tên</th>
+                        <th>CCCD</th>
+                        <th>Ngày sinh</th>
+                        <th>Tuổi</th>
+                        <th>Giới tính</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
                     {
                         <tr>
-                            <td>@cd.HoTen</td>
-                            <td>@cd.Tuoi</td>
-                            <td>@cd.GioiTinh</td>
-                            <td>
-                                <button @onclick="() => Delete(cd.PublicId)">Xóa</button>
+                            <td colspan="9" class="loading-cell">
+                                <div class="loading-spinner"></div>
+                                <span>Đang tải dữ liệu...</span>
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                    else if (paginatedCongdan.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="9" class="empty-cell">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                                    <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <p>Không tìm thấy dữ liệu</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var (cd, index) in paginatedCongdan.Select((c, i) => (c, i)))
+                        {
+                            <tr class="data-row">
+                                <td class="text-center">@((currentPage - 1) * pageSize + index + 1)</td>
+                                <td class="name-cell">
+                                    <div class="avatar">@GetInitials(cd.HoTen)</div>
+                                    <span>@cd.HoTen</span>
+                                </td>
+                                <td class="cccd-cell">@cd.Cccd</td>
+                                <td>@cd.NgaySinh.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">@CalculateAge(cd.NgaySinh)</td>
+                                <td>
+                                    <span class="gender-badge @(cd.GioiTinh?.ToLower() == "nam" ? "male" : "female")">
+                                        @cd.GioiTinh
+                                    </span>
+                                </td>
+                                <td>@(cd.SoDienThoai ?? "—")</td>
+                                <td class="email-cell">@(cd.Email ?? "—")</td>
+                                <td class="action-cell">
+                                    <button class="btn-icon btn-edit" title="Chỉnh sửa">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                            <path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17H3v-3L14.5 2.5z" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon btn-delete" @onclick="() => Delete(cd.PublicId)" title="Xóa">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                            <path d="M3 5h14M8 5V3h4v2M16 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
 
+        @if (totalPages > 1)
+        {
+            <div class="pagination">
+                <button class="pagination-btn" @onclick="FirstPage" disabled="@(currentPage == 1)">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 18L7 10l8-8M11 18L3 10l8-8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="pagination-btn" @onclick="PreviousPage" disabled="@(currentPage == 1)">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <path d="M12 18L4 10l8-8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                @foreach (var page in GetPageNumbers())
+                {
+                    <button class="pagination-btn @(page == currentPage ? "active" : "")" 
+                            @onclick="() => GoToPage(page)">
+                        @@page
+                    </button>
+                }
+
+                <button class="pagination-btn" @onclick="NextPage" disabled="@(currentPage == totalPages)">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <path d="M8 2l8 8-8 8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="pagination-btn" @onclick="LastPage" disabled="@(currentPage == totalPages)">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 2l8 8-8 8M9 2l8 8-8 8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     List<CongdanDTO> congdan = new();
-    string search = "";
+    List<CongdanDTO> filteredCongdan = new();
+    List<CongdanDTO> paginatedCongdan = new();
+
+    string searchCCCD = "";
+    DateTime selectedDate = DateTime.Today;
+    bool isLoading = false;
+
+    // Pagination
+    int currentPage = 1;
+    int pageSize = 10;
+    int totalPages => (int)Math.Ceiling(filteredCongdan.Count / (double)pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,12 +190,113 @@
 
     async Task LoadData()
     {
-        congdan = await Http.GetFromJsonAsync<List<CongdanDTO>>("api/CongDan");
+        isLoading = true;
+        try
+        {
+            congdan = await Http.GetFromJsonAsync<List<CongdanDTO>>("api/CongDan") ?? new();
+            FilterData();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    void FilterData()
+    {
+        if (!string.IsNullOrWhiteSpace(searchCCCD))
+        {
+            filteredCongdan = congdan.Where(cd => cd.Cccd?.Contains(searchCCCD, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+        }
+        else
+        {
+            filteredCongdan = congdan.Where(cd => cd.NgayTao == null || DateOnly.FromDateTime(cd.NgayTao.Value) == DateOnly.FromDateTime(selectedDate)).ToList();
+        }
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    void ResetFilter()
+    {
+        searchCCCD = "";
+        selectedDate = DateTime.Today;
+        filteredCongdan = congdan;
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    void UpdatePagination()
+    {
+        paginatedCongdan = filteredCongdan
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    void FirstPage()
+    {
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            UpdatePagination();
+        }
+    }
+
+    void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            UpdatePagination();
+        }
+    }
+
+    void LastPage()
+    {
+        currentPage = totalPages;
+        UpdatePagination();
+    }
+
+    void GoToPage(int page)
+    {
+        currentPage = page;
+        UpdatePagination();
+    }
+
+    IEnumerable<int> GetPageNumbers()
+    {
+        var start = Math.Max(1, currentPage - 2);
+        var end = Math.Min(totalPages, currentPage + 2);
+        return Enumerable.Range(start, end - start + 1);
     }
 
     async Task Delete(Guid? id)
     {
+        if (id == null) return;
+        
         await Http.DeleteAsync($"api/CongDan/{id}");
         await LoadData();
+    }
+
+    string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0][0].ToString().ToUpper();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+
+    int CalculateAge(DateOnly birthDate)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var age = today.Year - birthDate.Year;
+        if (birthDate > today.AddYears(-age)) age--;
+        return age;
     }
 }
