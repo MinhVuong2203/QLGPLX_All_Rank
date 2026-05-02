@@ -100,9 +100,19 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     transition: background var(--transition), color var(--transition);
-    overflow-x: hidden;
 }
 
+.required {
+    color: red;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+.validation-message {
+    color: red;
+    font-size: 13px;
+    margin-top: 4px;
+}
 /* ============================================
     LOADING TOÀN CỤC (SPA)
     ============================================ */
@@ -178,6 +188,180 @@ a {
     background: var(--scrollbar-thumb);
     border-radius: 99px;
 }
+
+/* ============================================
+    THÔNG BÁO TOÀN CỤC
+   ============================================ */
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    min-width: 320px; /* Thêm dòng này để container luôn có width */
+}
+
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 320px;
+    max-width: 420px;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    pointer-events: auto;
+    transform: translateX(calc(100% + 40px));
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+    .toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .toast-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+.toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: #525252;
+    line-height: 1.5;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    color: #737373;
+    transition: color 0.2s;
+}
+
+    .toast-close:hover {
+        color: #1a1a1a;
+    }
+
+    .toast-close svg {
+        width: 16px;
+        height: 16px;
+    }
+
+/* Success */
+.toast-success {
+    border-left: 4px solid #16a34a;
+}
+
+    .toast-success .toast-icon {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+/* Error */
+.toast-error {
+    border-left: 4px solid #dc2626;
+}
+
+    .toast-error .toast-icon {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+/* Warning */
+.toast-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+    .toast-warning .toast-icon {
+        background: #fef3c7;
+        color: #f59e0b;
+    }
+
+/* Info */
+.toast-info {
+    border-left: 4px solid #3b82f6;
+}
+
+    .toast-info .toast-icon {
+        background: #dbeafe;
+        color: #3b82f6;
+    }
+
+/* Dark theme */
+[data-theme="dark"] .toast {
+    background: #262626;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .toast-title {
+    color: #fafafa;
+}
+
+[data-theme="dark"] .toast-message {
+    color: #d4d4d4;
+}
+
+[data-theme="dark"] .toast-close {
+    color: #a3a3a3;
+}
+
+    [data-theme="dark"] .toast-close:hover {
+        color: #fafafa;
+    }
+
+/* Responsive */
+@media (max-width: 640px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+    }
+
+    .toast {
+        min-width: unset;
+        max-width: unset;
+        width: 100%;
+    }
+}
+
+.toast.hiding {
+    transform: translateX(calc(100% + 40px));
+    opacity: 0;
+}
+
 
 /* ============================================
     KHUNG BỐ CỤC
@@ -1350,8 +1534,8 @@ a {
 /* ── Hiệu ứng khi tải trang ── */
 @keyframes fadeInUp {
     from {
-        opacity: 1;
-        transform: translateY(800px);
+        opacity: 0;
+        transform: translateY(10px);
     }
 
     to {
@@ -1361,7 +1545,7 @@ a {
 }
 
 .page-main>* {
-    animation: fadeInUp 1s ease both;
+    animation: fadeInUp .4s ease both;
 }
 
 .stats-grid .stat-card:nth-child(1) {

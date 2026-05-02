@@ -1,0 +1,355 @@
+@page "/hoso/them"
+@using UI.Components.Layout
+@using UI.DTO.Hoso
+@using UI.DTO.HangGiayPhep
+@using UI.DTO.Congdan
+@inject HttpClient Http
+@inject NavigationManager Navigation
+    
+<link href="/css/hoso/them-ho-so.css" rel="stylesheet" />
+
+<div class="page-container">
+    <div class="page-header">
+        <div class="page-header-content">
+            <button class="btn-back" @onclick="GoBack">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div>
+                <h1 class="page-title">Tạo hồ sơ đăng ký GPLX</h1>
+                <p class="page-subtitle">Điền thông tin để đăng ký thi giấy phép lái xe</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-layout">
+        <!-- BƯỚC 1: CHỌN CÔNG DÂN -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="step-badge">Bước 1</div>
+                <h2 class="section-title">Chọn công dân</h2>
+            </div>
+            <div class="section-content">
+                @if (danhSachCongDan == null)
+                {
+                    <div class="loading-box">
+                        <div class="spinner"></div>
+                        <span>Đang tải danh sách công dân...</span>
+                    </div>
+                }
+                else if (!danhSachCongDan.Any())
+                {
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" />
+                            <circle cx="9" cy="7" r="4" stroke-width="2" />
+                            <line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round" />
+                            <line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <p>Chưa có công dân nào</p>
+                        <button class="btn-primary" @onclick='() => Navigation.NavigateTo("/congdan/them")'>
+                            Thêm công dân mới
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8" stroke-width="2" />
+                            <path d="M21 21l-4.35-4.35" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <input type="text" placeholder="Tìm theo tên, CCCD..." @bind="searchText" @bind:event="oninput"
+                               class="search-input" />
+                    </div>
+
+                    <div class="congdan-grid">
+                        @foreach (var cd in GetFilteredCongDan())
+                        {
+                            <div class="congdan-card @(model.MaCongDan == cd.MaCongDan ? "selected" : "")"
+                                 @onclick="() => SelectCongDan(cd)">
+                                <div class="congdan-avatar">
+                                    @if (!string.IsNullOrEmpty(cd.Anh3x4))
+                                    {
+                                        <img src="@cd.Anh3x4" alt="@cd.HoTen" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-placeholder">
+                                            @GetInitials(cd.HoTen)
+                                        </div>
+                                    }
+                                </div>
+                                <div class="congdan-info">
+                                    <h3 class="congdan-name">@cd.HoTen</h3>
+                                    <p class="congdan-detail">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2" />
+                                            <line x1="7" y1="8" x2="17" y2="8" stroke-width="2" />
+                                            <line x1="7" y1="12" x2="13" y2="12" stroke-width="2" />
+                                        </svg>
+                                        CCCD: @cd.Cccd
+                                    </p>
+                                    <p class="congdan-detail">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-width="2" />
+                                            <polyline points="9 22 9 12 15 12 15 22" stroke-width="2" />
+                                        </svg>
+                                        @cd.DiaChi
+                                    </p>
+                                </div>
+                                @if (model.MaCongDan == cd.MaCongDan)
+                                {
+                                    <div class="selected-badge">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- BƯỚC 2: CHỌN HẠNG GPLX -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="step-badge">Bước 2</div>
+                <h2 class="section-title">Chọn hạng giấy phép lái xe</h2>
+            </div>
+            <div class="section-content">
+                @if (danhSachHang == null)
+                {
+                    <div class="loading-box">
+                        <div class="spinner"></div>
+                        <span>Đang tải danh sách hạng GPLX...</span>
+                    </div>
+                }
+                else if (!danhSachHang.Any())
+                {
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2" />
+                            <line x1="7" y1="8" x2="17" y2="8" stroke-width="2" />
+                        </svg>
+                        <p>Chưa có hạng GPLX nào</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="hang-grid">
+                        @foreach (var hang in danhSachHang)
+                        {
+                            <div class="hang-card @(model.MaHang == hang.MaHang ? "selected" : "")"
+                                 @onclick="() => SelectHang(hang)">
+                                <div class="hang-badge">@hang.MaHang</div>
+                                <h3 class="hang-title">@hang.TenHang</h3>
+                                <div class="hang-details">
+                                    <div class="hang-detail-item">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M19 15v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4M15 9l-3-3-3 3M12 6v12"
+                                                  stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                        <span>@hang.LoaiXe</span>
+                                    </div>
+                                    <div class="hang-detail-item">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <circle cx="12" cy="12" r="10" stroke-width="2" />
+                                            <polyline points="12 6 12 12 16 14" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                        <span>Từ @hang.DoTuoiToiThieu tuổi</span>
+                                    </div>
+                                    @if (hang.ThoiHanNam.HasValue)
+                                    {
+                                        <div class="hang-detail-item">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
+                                                <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" />
+                                                <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" />
+                                                <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" />
+                                            </svg>
+                                            <span>Hiệu lực @hang.ThoiHanNam năm</span>
+                                        </div>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(hang.MoTaChiTiet))
+                                {
+                                    <p class="hang-description">@hang.MoTaChiTiet</p>
+                                }
+                                @if (model.MaHang == hang.MaHang)
+                                {
+                                    <div class="selected-badge">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- BƯỚC 3: GHI CHÚ -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="step-badge">Bước 3</div>
+                <h2 class="section-title">Ghi chú (không bắt buộc)</h2>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <textarea class="form-textarea" rows="4" placeholder="Nhập ghi chú hoặc thông tin bổ sung..."
+                              @bind="model.GhiChu"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- NÚT HÀNH ĐỘNG -->
+        <div class="form-actions">
+            <button class="btn-secondary" @onclick="GoBack" disabled="@isSubmitting">
+                Hủy bỏ
+            </button>
+            <button class="btn-primary" @onclick="SubmitForm" disabled="@(!IsFormValid() || isSubmitting)">
+                @if (isSubmitting)
+                {
+                    <div class="btn-spinner"></div>
+                    <span>Đang xử lý...</span>
+                }
+                else
+                {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke-width="2" />
+                        <polyline points="17 21 17 13 7 13 7 21" stroke-width="2" />
+                        <polyline points="7 3 7 8 15 8" stroke-width="2" />
+                    </svg>
+                    <span>Tạo hồ sơ</span>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MainLayout? Layout { get; set; }
+
+    private CreateHosoDTO model = new();
+    private List<CongdanDTO>? danhSachCongDan;
+    private List<HangGiayPhepDTO>? danhSachHang;
+    private string searchText = "";
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        Layout?.ShowLoading();
+        try
+        {
+            var congdanTask = Http.GetFromJsonAsync<List<CongdanDTO>>("https://localhost:7033/api/CongDan");
+            var hangTask = Http.GetFromJsonAsync<List<HangGiayPhepDTO>>("https://localhost:7033/api/HangGiayPhep");
+
+            await Task.WhenAll(congdanTask, hangTask);
+
+            danhSachCongDan = await congdanTask;
+            danhSachHang = await hangTask;
+        }
+        catch (Exception ex)
+        {
+            Layout?.ShowError($"Lỗi khi tải dữ liệu: {ex.Message}");
+        }
+        finally
+        {
+            Layout?.HideLoading();
+        }
+    }
+
+    private IEnumerable<CongdanDTO> GetFilteredCongDan()
+    {
+        if (danhSachCongDan == null) return Enumerable.Empty<CongdanDTO>();
+        
+        if (string.IsNullOrWhiteSpace(searchText))
+            return danhSachCongDan;
+
+        var search = searchText.ToLower();
+        return danhSachCongDan.Where(cd =>
+            cd.HoTen.ToLower().Contains(search) ||
+            cd.Cccd.Contains(search) ||
+            (cd.SoDienThoai?.Contains(search) ?? false)
+        );
+    }
+
+    private void SelectCongDan(CongdanDTO congdan)
+    {
+        model.MaCongDan = congdan.MaCongDan;
+        StateHasChanged();
+    }
+
+    private void SelectHang(HangGiayPhepDTO hang)
+    {
+        model.MaHang = hang.MaHang;
+        StateHasChanged();
+    }
+
+    private bool IsFormValid()
+    {
+        return model.MaCongDan > 0 && !string.IsNullOrEmpty(model.MaHang);
+    }
+
+    private async Task SubmitForm()
+    {
+        if (!IsFormValid() || isSubmitting) return;
+
+        isSubmitting = true;
+        Layout?.ShowLoading();
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7033/api/Hoso", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Layout?.ShowSuccess("Tạo hồ sơ thành công!");
+                await Task.Delay(1000);
+                Navigation.NavigateTo("/hoso");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Layout?.ShowError($"Tạo hồ sơ thất bại: {error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Layout?.ShowError($"Lỗi khi tạo hồ sơ: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+            Layout?.HideLoading();
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/hoso");
+    }
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        
+        var parts = name.Trim().Split(' ');
+        if (parts.Length == 1)
+            return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+}

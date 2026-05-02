@@ -1,0 +1,365 @@
+﻿@page "/cong-dan/them-moi"
+@using UI.DTO.Congdan
+@using UI.Components.Layout
+@inject HttpClient Http
+@inject NavigationManager Nav
+@layout MainLayout
+
+<link href="/css/congdan/them_cong_dan.css" rel="stylesheet" />
+<h1 class="title"> Bổ sung công dân</h1>
+
+<div class="create-container">
+    <!-- LEFT: FORM -->
+    <div class="form-card">
+
+        <EditForm Model="model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="grid">
+
+                <!-- Họ tên -->
+                <div class="field">
+                    <label>Họ tên <span class="required">*</span></label>
+                    <ValidationMessage For="@(() => model.HoTen)" />
+                    <InputText @bind-Value="model.HoTen" />
+                </div>
+
+                <!-- Ngày sinh -->
+                <div class="field">
+                    <label>Ngày sinh <span class="required">*</span></label>
+                    <ValidationMessage For="@(() => model.NgaySinh)" />
+                    <InputDate @bind-Value="model.NgaySinh" />
+                </div>
+
+                <!-- CCCD -->
+                <div class="field">
+                    <label>CCCD <span class="required">*</span></label>
+                    <ValidationMessage For="@(() => model.Cccd)" />
+                    <InputText @bind-Value="model.Cccd" />
+                </div>
+
+                <!-- Giới tính -->
+                <div class="field">
+                    <label>Giới tính</label>
+                    <InputSelect @bind-Value="model.GioiTinh">
+                        <option value="">-- chọn --</option>
+                        <option>Nam</option>
+                        <option>Nữ</option>
+                    </InputSelect>
+                </div>
+
+                <!-- TỈNH -->
+                <div class="field">
+                    <label>Tỉnh</label>
+                    <select @bind="selectedTinh">
+                        <option value="">-- chọn tỉnh --</option>
+                        @foreach (var t in tinhList)
+                        {
+                            <option value="@t.tentinhmoi">@t.tentinhmoi</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- PHƯỜNG -->
+                <div class="field">
+                    <label>Phường/Xã</label>
+                    <select @bind="selectedPhuong">
+                        <option value="">-- chọn phường --</option>
+                        @foreach (var p in phuongList)
+                        {
+                            <option value="@p.tenphuongxa">@p.tenphuongxa</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Địa chỉ chi tiết -->
+                <div class="field full">
+                    <label>Địa chỉ cụ thể</label>
+                    <InputText @bind-Value="diaChiCuThe" />
+                </div>
+
+                <!-- Phone -->
+                <div class="field">
+                    <label>SĐT</label>
+                    <ValidationMessage For="@(() => model.SoDienThoai)" />
+                    <InputText @bind-Value="model.SoDienThoai" />
+                </div>
+
+                <!-- Email -->
+                <div class="field">
+                    <label>Email</label>
+                    <ValidationMessage For="@(() => model.Email)" />
+                    <InputText @bind-Value="model.Email" />
+                </div>
+
+                <!-- Upload -->
+                <div class="field">
+                    <label>Ảnh 3x4</label>
+                    <InputFile OnChange="OnAvatarChange" />
+                </div>
+
+                <div class="field">
+                    <label>Tình trạng sức khỏe</label>
+                    <InputText @bind-Value="model.TinhTrangSucKhoe" />
+                </div>
+
+                <!-- Ngày khám sức khỏe -->
+                <div class="field">
+                    <label>Ngày khám sức khỏe</label>
+                    <ValidationMessage For="@(() => model.NgayKhamSucKhoe)" />
+                    <InputDate @bind-Value="model.NgayKhamSucKhoe"/>
+                </div>
+
+                <div class="field">
+                    <label>Giấy khám</label>
+                    <InputFile OnChange="OnGkskChange" />                
+                </div>
+               
+            </div>
+
+            <button class="btn-submit"> Tạo công dân</button>
+            <ValidationSummary />
+        </EditForm>
+
+    </div>
+
+    <!-- RIGHT: PREVIEW -->
+    <div class="preview-card">
+        <h3>Thông tin</h3>
+
+        <div class="preview-item">
+            <i class="bi bi-person"></i>
+            <span><b>@model.HoTen</b></span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-calendar"></i>
+            <span>@model.NgaySinh</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-credit-card-2-front"></i>
+            <span>@model.Cccd</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-gender-ambiguous"></i>
+            <span>@(model.GioiTinh ?? "Chưa có")</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-geo-alt"></i>
+            <span>@FullAddress</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-telephone"></i>
+            <span>@(model.SoDienThoai ?? "Chưa có")</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-envelope"></i>
+            <span>@(model.Email ?? "Chưa có")</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-heart-pulse"></i>
+            <span>@(model.TinhTrangSucKhoe ?? "Chưa có")</span>
+        </div>
+
+        <div class="preview-item">
+            <i class="bi bi-clipboard2-pulse"></i>
+            <span>
+                @(model.NgayKhamSucKhoe?.ToString("dd/MM/yyyy") ?? "Chưa có")
+            </span>
+        </div>
+
+        @if (avatarPreview != null)
+        {
+            <div class="preview-avatar">
+                <img src="@avatarPreview" class="preview-avatar-item" />
+            </div>
+        }
+    </div>
+
+</div>
+
+
+@code {
+    [CascadingParameter]
+    public MainLayout Layout { get; set; } = default!;
+
+    CreateCongdanDTO model = new();
+
+    string? diaChiCuThe;
+    string? _selectedTinh;
+    string? selectedPhuong;
+
+    IBrowserFile? avatar;
+    IBrowserFile? gksk;
+
+    string? avatarPreview;
+    string? gkskPreview;
+
+    List<Tinh> tinhList = new();
+    List<PhuongXa> phuongList = new();
+
+    string? selectedTinh
+    {
+        get => _selectedTinh;
+        set
+        {
+            _selectedTinh = value;
+
+            var tinh = tinhList.FirstOrDefault(x => x.tentinhmoi == value);
+            phuongList = tinh?.phuongxa ?? new();
+
+            // reset phường khi đổi tỉnh
+            selectedPhuong = null;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var url = Nav.BaseUri + "data/tinh_tp.json";
+            var json = await Http.GetStringAsync(url);
+
+            tinhList = System.Text.Json.JsonSerializer.Deserialize<List<Tinh>>(json,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new();
+
+            Console.WriteLine($"Loaded tỉnh: {tinhList.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Lỗi load JSON: " + ex.Message);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        try
+        {
+            model.DiaChi = FullAddress;
+            var form = new MultipartFormDataContent();
+            form.Add(new StringContent(model.HoTen), "HoTen");
+            form.Add(new StringContent(model.Cccd), "Cccd");
+            form.Add(new StringContent(model.NgaySinh.ToString("yyyy-MM-dd")), "NgaySinh");   
+            form.Add(new StringContent(model.GioiTinh ?? ""), "GioiTinh");
+            form.Add(new StringContent(model.DiaChi ?? ""), "DiaChi");
+            form.Add(new StringContent(model.SoDienThoai ?? ""), "SoDienThoai");
+            form.Add(new StringContent(model.Email ?? ""), "Email");
+            form.Add(new StringContent(model.TinhTrangSucKhoe ?? ""), "TinhTrangSucKhoe");
+            if (model.NgayKhamSucKhoe.HasValue)
+            {
+                form.Add(new StringContent(model.NgayKhamSucKhoe.Value.ToString("yyyy-MM-dd")), "NgayKhamSucKhoe");
+            }
+            if (avatar != null)
+                form.Add(new StreamContent(avatar.OpenReadStream()), "anh3x4", avatar.Name);
+            if (gksk != null)
+                form.Add(new StreamContent(gksk.OpenReadStream()), "giayKham", gksk.Name);
+
+            Layout.ShowLoading();
+            var res = await Http.PostAsync("api/CongDan", form);
+          
+
+            if (res.IsSuccessStatusCode)
+            {
+                Layout.ShowSuccess("Thông tin công dân đã được lưu thành công!");
+                Nav.NavigateTo("/cong-dan");
+            }
+            else
+            {
+                var err = await res.Content.ReadAsStringAsync();
+
+                // Xử lý các mã lỗi HTTP cụ thể
+                switch (res.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.BadRequest:
+                        Layout.ShowError($"Dữ liệu không hợp lệ: {err}", "Lỗi xác thực");
+                        break;
+                    case System.Net.HttpStatusCode.Conflict:
+                        Layout.ShowError(err, "Trùng lặp dữ liệu");
+                        break;
+                    case System.Net.HttpStatusCode.Unauthorized:
+                        Layout.ShowError("Bạn không có quyền thực hiện thao tác này!", "Không có quyền");
+                        break;
+                    case System.Net.HttpStatusCode.InternalServerError:
+                        Layout.ShowError("Lỗi máy chủ. Vui lòng thử lại sau!", "Lỗi hệ thống");
+                        break;
+                    default:
+                        Layout.ShowError($"Có lỗi xảy ra ({res.StatusCode}): {err}");
+                        break;
+                }
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {       
+            Layout.ShowError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng!", "Lỗi kết nối");
+            Console.WriteLine($"HTTP Error: {httpEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            Layout.ShowError($"Đã xảy ra lỗi không mong muốn: {ex.Message}", "Lỗi");
+            Console.WriteLine($"Error: {ex}");
+        }
+        finally
+        {
+            Layout.HideLoading();
+        }
+
+    }
+
+
+    void OnTinhChange(ChangeEventArgs e)
+    {
+        selectedTinh = e.Value?.ToString();
+
+        var tinh = tinhList.FirstOrDefault(x => x.tentinhmoi == selectedTinh);
+
+        phuongList = tinh?.phuongxa ?? new();
+
+        // reset phường khi đổi tỉnh
+        selectedPhuong = null;
+    }
+
+    async Task OnAvatarChange(InputFileChangeEventArgs e)
+    {
+        avatar = e.File;
+
+        using var stream = avatar.OpenReadStream();
+        var buffer = new byte[avatar.Size];
+        await stream.ReadAsync(buffer);
+
+        avatarPreview = $"data:{avatar.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    async Task OnGkskChange(InputFileChangeEventArgs e)
+    {
+        gksk = e.File;
+
+        using var stream = gksk.OpenReadStream();
+        var buffer = new byte[gksk.Size];
+        await stream.ReadAsync(buffer);
+
+        gkskPreview = $"data:{gksk.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    string FullAddress => $"{diaChiCuThe} # {selectedPhuong} # {selectedTinh}";
+
+    public class Tinh
+    {
+        public string tentinhmoi { get; set; } = "";
+        public List<PhuongXa> phuongxa { get; set; } = new();
+    }
+
+    public class PhuongXa
+    {
+        public int maphuongxa { get; set; }
+        public string tenphuongxa { get; set; } = "";
+    }
+}

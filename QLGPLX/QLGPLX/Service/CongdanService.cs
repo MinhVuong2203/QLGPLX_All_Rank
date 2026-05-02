@@ -1,38 +1,130 @@
-using AutoMapper;
+﻿using AutoMapper;
+using Backend.DTO.Congdan;
+using Backend.Service.Interface;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using DTO.Congdan;
+using Microsoft.EntityFrameworkCore;
 using QLGPLX.Models;
 using QLGPLX.Repository;
-
+namespace Backend.Service;
 public class CongdanService : ICongDanService
 {
     private readonly CongdanRepository _repo;
     private readonly IMapper _mapper;
-    private readonly Cloudinary _cloudinary;
+    private readonly ICloudinaryService _cloudService;
 
-    public CongdanService(CongdanRepository repo, IMapper mapper, IConfiguration config)
+    public CongdanService(CongdanRepository repo, IMapper mapper, ICloudinaryService cloudinaryService)
     {
         _repo = repo;
         _mapper = mapper;
-       
-        var acc = new Account(
-            config["Cloudinary:CloudName"],
-            config["Cloudinary:ApiKey"],
-            config["Cloudinary:ApiSecret"]
-        );
-
-        _cloudinary = new Cloudinary(acc);
+        _cloudService = cloudinaryService;
+ 
     }
     public async Task Create(CreateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham)
     {
-        var congdan = _mapper.Map<Congdan>(dto);
-        congdan.PublicId = Guid.NewGuid();
-        congdan.NgayTao = DateTime.Now;
-        if (anh3x4 != null) congdan.Anh3x4 = await UploadFile(anh3x4);
-        if (giayKham != null) congdan.GiayKhamSucKhoe = await UploadFile(giayKham);
-        _repo.Add(congdan); 
+        try
+        {
+            var congdan = _mapper.Map<Congdan>(dto);
+            congdan.PublicId = Guid.NewGuid();
+            congdan.NgayTao = DateTime.Now;
+
+            // ===== AVATAR =====
+            if (anh3x4 != null)
+            {
+                congdan.Anh3x4 = await _cloudService.UploadImageAsync(
+                    anh3x4,
+                    "QLGPLX/avatar",
+                    congdan.PublicId.ToString()
+                );
+            }
+
+            // ===== GIẤY KHÁM =====
+            if (giayKham != null)
+            {
+                congdan.GiayKhamSucKhoe = await _cloudService.UploadImageAsync(
+                    giayKham,
+                    "QLGPLX/gksk",
+                    congdan.PublicId.ToString()
+                );
+            }
+
+            _repo.Add(congdan);
+           
+        }
+        catch (DbUpdateException ex)
+        {
+            var inner = ex.InnerException?.Message ?? "";
+
+            if (inner.Contains("Duplicate entry"))
+            {
+                if (inner.Contains("CCCD"))
+                    throw new Exception("CCCD đã tồn tại");
+
+                if (inner.Contains("Email"))
+                    throw new Exception("Email đã tồn tại");
+
+                if (inner.Contains("SoDienThoai"))
+                    throw new Exception("SĐT đã tồn tại");
+
+                throw new Exception("Dữ liệu bị trùng");
+            }
+
+            throw;
+        }
     }
+
+    public async Task Update(Guid id, UpdateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham)
+    {
+        try
+        {
+            var congdan = _repo.GetById(id);
+            if (congdan == null) return;
+
+            _mapper.Map(dto, congdan);
+
+            // ===== AVATAR =====
+            if (anh3x4 != null)
+            {           
+                congdan.Anh3x4 = await _cloudService.UploadImageAsync(
+                    anh3x4,
+                    "QLGPLX/avatar",
+                    congdan.PublicId.ToString()
+                );
+            }
+
+            // ===== GIẤY KHÁM =====
+            if (giayKham != null)
+            {
+                congdan.GiayKhamSucKhoe = await _cloudService.UploadImageAsync(
+                    giayKham,
+                    "QLGPLX/gksk",
+                    congdan.PublicId.ToString()
+                );
+            }
+            _repo.Update(congdan);
+        }
+        catch (DbUpdateException ex)
+        {
+            var inner = ex.InnerException?.Message ?? "";
+
+            if (inner.Contains("Duplicate entry"))
+            {
+                if (inner.Contains("CCCD"))
+                    throw new Exception("CCCD đã tồn tại");
+
+                if (inner.Contains("Email"))
+                    throw new Exception("Email đã tồn tại");
+
+                if (inner.Contains("SoDienThoai"))
+                    throw new Exception("SĐT đã tồn tại");
+
+                throw new Exception("Dữ liệu bị trùng");
+            }
+
+            throw;
+        }
+    }
+
 
     public void Delete(Guid id)
     {
@@ -50,27 +142,6 @@ public class CongdanService : ICongDanService
     {
         var congdan = _repo.GetById(id);
         return congdan == null ? null : _mapper.Map<CongdanDTO>(congdan);
-    }
-
-    public async Task Update(Guid id, UpdateCongdanDTO dto)
-    {
-        var congdan = _repo.GetById(id);
-        if (congdan == null) return;
-        _mapper.Map(dto, congdan);
-        _repo.Update(congdan);
-    }
-
-    private async Task<string> UploadFile(IFormFile file)
-    {
-        await using var stream = file.OpenReadStream();
-
-        var uploadParams = new ImageUploadParams
-        {
-            File = new FileDescription(file.FileName, stream)
-        };
-
-        var result = await _cloudinary.UploadAsync(uploadParams);
-        return result.SecureUrl.ToString();
     }
 
 }

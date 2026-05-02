@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DTO.Congdan;
+using Backend.DTO.Congdan;
 using QLGPLX.Models;
 
 namespace QLGPLX.Mapping

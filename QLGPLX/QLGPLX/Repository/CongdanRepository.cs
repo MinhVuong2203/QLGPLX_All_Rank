@@ -1,4 +1,5 @@
-﻿using QLGPLX.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using QLGPLX.Data;
 using QLGPLX.Models;
 
 namespace QLGPLX.Repository
@@ -15,6 +16,12 @@ namespace QLGPLX.Repository
         public List<Congdan> GetAll() => _context.Congdans.ToList();
 
         public Congdan? GetById(Guid id) => _context.Congdans.FirstOrDefault(t => t.PublicId == id);
+
+        public async Task<Congdan?> GetByIdAsync(int id)
+        {
+            return await _context.Congdans
+                .FirstOrDefaultAsync(t => t.MaCongDan == id);
+        }
 
         public void Add(Congdan congdan)
         {
