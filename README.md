@@ -157,12 +157,12 @@ Hệ thống tập trung vào:
 * Đảm bảo đơn giản, dễ triển khai nhưng vẫn đầy đủ nghiệp vụ
 
 
-## Công nghệ sử dụng
-* Font-end: HTML, CSS, JS, Boostrap 5
-* Back-end: Java Spring Boot 4.0.4 (Spring Web, Spring Data, Spring Security), (Java 21)
+## Công nghệ sử dụng *
+* Font-end: Blazor, HTML, CSS, JS, Boostrap 5
+* Back-end: ASP.NET API (.net 8)
 * Database: MySQL 
 
-## Cấu trúc thư mục
+## Cấu trúc thư mục *
 ```
 ├QLGPLX/
 │
@@ -194,3 +194,117 @@ Hệ thống tập trung vào:
 ```
 
 Chuỗi Scaffold: Scaffold-DbContext "server=localhost;database=;user=;password=;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -ContextDir Data -Context GplxDbContext -DataAnnotations -NoOnConfiguring -Force
+
+```
+QLGPLX_All_Rank
+├─ Dockerfile
+├─ QLGPLX
+│  ├─ QLGPLX
+│  │  ├─ .editorconfig
+│  │  ├─ appsettings.Development.json
+│  │  ├─ Backend.csproj
+│  │  ├─ Configurations
+│  │  │  └─ CloudinarySettings.cs
+│  │  ├─ Controllers
+│  │  │  └─ CongDanController.cs
+│  │  ├─ Data
+│  │  │  └─ GplxDbContext.cs
+│  │  ├─ DTO
+│  │  │  └─ Congdan
+│  │  │     ├─ CongdanDTO.cs
+│  │  │     ├─ CreateCongdanDTO.cs
+│  │  │     └─ UpdateCongdanDTO.cs
+│  │  ├─ Mapping
+│  │  │  └─ AutoMapperProfile.cs
+│  │  ├─ Models
+│  │  │  ├─ Canbo.cs
+│  │  │  ├─ CanboHoso.cs
+│  │  │  ├─ Chucvu.cs
+│  │  │  ├─ Congdan.cs
+│  │  │  ├─ Giayphep.cs
+│  │  │  ├─ Hanggiayphep.cs
+│  │  │  ├─ HangMonThi.cs
+│  │  │  ├─ Hoso.cs
+│  │  │  ├─ Ketquachitiet.cs
+│  │  │  ├─ Ketquathi.cs
+│  │  │  ├─ Kythi.cs
+│  │  │  ├─ Lichthi.cs
+│  │  │  ├─ Loaivipham.cs
+│  │  │  ├─ Monthi.cs
+│  │  │  └─ Vipham.cs
+│  │  ├─ Program.cs
+│  │  ├─ Properties
+│  │  │  └─ launchSettings.json
+│  │  ├─ QLGPLX.http
+│  │  ├─ Repository
+│  │  │  └─ CongdanRepository.cs
+│  │  ├─ Service
+│  │  │  ├─ CloudinaryService.cs
+│  │  │  ├─ CongdanService.cs
+│  │  │  └─ Interface
+│  │  │     ├─ ICloudinaryService.cs
+│  │  │     └─ ICongdanService.cs
+│  │  └─ wwwroot
+│  ├─ QLGPLX.sln
+│  └─ UI
+│     ├─ Components
+│     │  └─ Layout
+│     │     ├─ Header.razor
+│     │     ├─ MainLayout.razor
+│     │     └─ NavMenu.razor
+│     └─ wwwroot
+│        └─ css
+│           └─ app.css
+├─ README.md
+└─ UI
+   ├─ appsettings.Development.json
+   ├─ Components
+   │  ├─ App.razor
+   │  ├─ Layout
+   │  │  ├─ Footer.razor
+   │  │  ├─ Header.razor
+   │  │  ├─ MainLayout.razor
+   │  │  └─ NavMenu.razor
+   │  ├─ Pages
+   │  │  ├─ Congdan
+   │  │  │  ├─ DSCongDan.razor
+   │  │  │  ├─ SuaCongDan.razor
+   │  │  │  └─ ThemCongDan.razor
+   │  │  ├─ Error.razor
+   │  │  └─ Home.razor
+   │  ├─ Routes.razor
+   │  └─ _Imports.razor
+   ├─ DTO
+   │  └─ Congdan
+   │     ├─ CongdanDTO.cs
+   │     ├─ CreateCongdanDTO.cs
+   │     └─ UpdateCongdanDTO.cs
+   ├─ Program.cs
+   ├─ Properties
+   │  └─ launchSettings.json
+   ├─ UI.csproj
+   ├─ Utils
+   │  └─ Helper.cs
+   └─ wwwroot
+      ├─ bootstrap
+      │  ├─ bootstrap.min.css
+      │  └─ bootstrap.min.css.map
+      ├─ css
+      │  ├─ app.css
+      │  └─ congdan
+      │     ├─ ds_congdan.css
+      │     └─ them_cong_dan.css
+      ├─ data
+      │  └─ tinh_tp.json
+      ├─ favicon.png
+      ├─ image
+      │  ├─ avatar
+      │  └─ gksk
+      └─ js
+         └─ core
+            └─ loading.js
+
+```
+## Các Models liên quan
+## Các biến css màu sắc
+## File MainLayout

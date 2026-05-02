@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace Backend.DTO.Congdan;
-public class CreateCongdanDTO : IValidatableObject
+
+namespace UI.DTO.Congdan;
+
+public class UpdateCongdanDTO : IValidatableObject
 {
     [Required(ErrorMessage = "Họ tên không được để trống")]
     public string HoTen { get; set; }
@@ -10,8 +12,7 @@ public class CreateCongdanDTO : IValidatableObject
 
     public string? GioiTinh { get; set; }
 
-    [Required(ErrorMessage = "CCCD không được để trống")]
-    public string Cccd { get; set; }
+    public string? Cccd { get; set; } // Thêm dòng này (chỉ để hiển thị, không gửi lên server)
 
     public string? DiaChi { get; set; }
 
@@ -63,3 +64,4 @@ public class CreateCongdanDTO : IValidatableObject
         }
     }
 }
+

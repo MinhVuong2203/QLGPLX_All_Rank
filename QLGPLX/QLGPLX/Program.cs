@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Backend.Configurations;
+using CloudinaryDotNet;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using QLGPLX.Data;
 using QLGPLX.Mapping;
 
@@ -23,6 +26,18 @@ builder.Services.Scan(scan => scan
         .AsSelf()
         .WithScopedLifetime()
 );
+
+
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("Cloudinary"));
+
+builder.Services.AddSingleton(provider =>   
+{
+    var config = provider.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+    var account = new Account(config.CloudName, config.ApiKey, config.ApiSecret);
+    return new Cloudinary(account);
+});
+
 
 builder.Services.AddDbContext<GplxDbContext>(options =>
     options.UseMySql(

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace Backend.DTO.Congdan;
+namespace UI.DTO.Congdan;
 public class CreateCongdanDTO : IValidatableObject
 {
     [Required(ErrorMessage = "Họ tên không được để trống")]

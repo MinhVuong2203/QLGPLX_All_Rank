@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-    <PackageReference Include="CloudinaryDotNet" Version="1.28.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.29.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.26">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <None Include="D:\DAI HOC\PhanTichThietKeHuongDoiTuong\BaiTapLon\QLGPLX_All_Rank\QLGPLX\QLGPLX\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

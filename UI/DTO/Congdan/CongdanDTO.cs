@@ -1,6 +1,7 @@
-namespace DTO.Congdan;
+namespace UI.DTO.Congdan;
 public class CongdanDTO
 {
+    public int MaCongDan { get; set; }
     public Guid? PublicId { get; set; }
     public string HoTen { get; set; }
     public DateOnly NgaySinh { get; set; }

@@ -1,4 +1,5 @@
-﻿using DTO.Congdan;
+﻿using Backend.DTO.Congdan;
+using Backend.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,16 +29,37 @@ namespace QLGPLX.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham)
         {
-            await _congdanService.Create(dto, anh3x4, giayKham);
-            return Ok();
+            try
+            {
+                await _congdanService.Create(dto, anh3x4, giayKham);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("đã tồn tại"))
+                    return Conflict(ex.Message); 
+
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, UpdateCongdanDTO dto)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham)
         {
-            await _congdanService.Update(id, dto);
-            return Ok();
+            try
+            {
+                await _congdanService.Update(id, dto, anh3x4, giayKham);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("đã tồn tại"))
+                    return Conflict(ex.Message);
+
+                return BadRequest(ex.Message);
+            }
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)

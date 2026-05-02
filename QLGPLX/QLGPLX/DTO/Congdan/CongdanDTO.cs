@@ -1,6 +1,7 @@
-namespace DTO.Congdan;
+namespace Backend.DTO.Congdan;
 public class CongdanDTO
 {
+    public int MaCongDan { get; set; }
     public Guid? PublicId { get; set; }
     public string HoTen { get; set; }
     public DateOnly NgaySinh { get; set; }
@@ -13,8 +14,8 @@ public class CongdanDTO
     public string? DiaChi { get; set; }
 
     public string? TinhTrangSucKhoe { get; set; }
-    public DateOnly? NgayKhamSucKhoe { get; set; }
     public string? GiayKhamSucKhoe { get; set; }
+    public DateOnly? NgayKhamSucKhoe { get; set; }
     public string? Anh3x4 { get; set; }
     public DateTime? NgayTao { get; set; }
 

@@ -1,0 +1,149 @@
+using Backend.DTO.HoSo;
+using Backend.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
+
+
+namespace QLGPLX.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class HosoController : ControllerBase
+{
+    private readonly IHosoService _hosoService;
+
+    public HosoController(IHosoService hosoService)
+    {
+        _hosoService = hosoService;
+    }
+
+    // GET: api/Hoso
+    [HttpGet]
+    public async Task<ActionResult<List<HosoDTO>>> GetAll()
+    {
+        try
+        {
+            var hosos = await _hosoService.GetAllAsync();
+            return Ok(hosos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách hồ sơ", error = ex.Message });
+        }
+    }
+
+    // GET: api/Hoso/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<HosoDTO>> GetById(int id)
+    {
+        try
+        {
+            var hoso = await _hosoService.GetByIdAsync(id);
+            if (hoso == null)
+                return NotFound(new { message = "Không tìm thấy hồ sơ" });
+
+            return Ok(hoso);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi lấy hồ sơ", error = ex.Message });
+        }
+    }
+
+    // GET: api/Hoso/public/guid
+    [HttpGet("public/{publicId}")]
+    public async Task<ActionResult<HosoDTO>> GetByPublicId(Guid publicId)
+    {
+        try
+        {
+            var hoso = await _hosoService.GetByPublicIdAsync(publicId);
+            if (hoso == null)
+                return NotFound(new { message = "Không tìm thấy hồ sơ" });
+
+            return Ok(hoso);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi lấy hồ sơ", error = ex.Message });
+        }
+    }
+
+    // GET: api/Hoso/congdan/5
+    [HttpGet("congdan/{maCongDan}")]
+    public async Task<ActionResult<List<HosoDTO>>> GetByCongDan(int maCongDan)
+    {
+        try
+        {
+            var hosos = await _hosoService.GetByCongDanAsync(maCongDan);
+            return Ok(hosos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách hồ sơ", error = ex.Message });
+        }
+    }
+
+    // POST: api/Hoso
+    [HttpPost]
+    public async Task<ActionResult<HosoDTO>> Create([FromBody] CreateHosoDTO dto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _hosoService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.HoSoId }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi tạo hồ sơ", error = ex.Message });
+        }
+    }
+
+    // PUT: api/Hoso/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<HosoDTO>> Update(int id, [FromBody] CreateHosoDTO dto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var updated = await _hosoService.UpdateAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "Không tìm thấy hồ sơ" });
+
+            return Ok(updated);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi cập nhật hồ sơ", error = ex.Message });
+        }
+    }
+
+    // DELETE: api/Hoso/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var result = await _hosoService.DeleteAsync(id);
+            if (!result)
+                return NotFound(new { message = "Không tìm thấy hồ sơ" });
+
+            return Ok(new { message = "Xóa hồ sơ thành công" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi xóa hồ sơ", error = ex.Message });
+        }
+    }
+}
