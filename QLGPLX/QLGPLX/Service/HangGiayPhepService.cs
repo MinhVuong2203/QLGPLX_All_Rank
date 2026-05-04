@@ -1,7 +1,7 @@
 
 using Backend.DTO.HangGiayPhep;
 using Backend.Service.Interface;
-using QLGPLX.Repository;
+using Backend.Repository;
 
 
 namespace Backend.Service;
@@ -45,15 +45,5 @@ public class HangGiayPhepService : IHangGiayPhepService
             YeuCauThucHanh = hang.YeuCauThucHanh,
             MoTaChiTiet = hang.MoTaChiTiet
         };
-    }
-
-    Task<List<HangGiayPhepDTO>> IHangGiayPhepService.GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<HangGiayPhepDTO?> IHangGiayPhepService.GetByIdAsync(string maHang)
-    {
-        throw new NotImplementedException();
     }
 }

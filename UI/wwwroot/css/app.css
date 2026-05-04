@@ -51,6 +51,10 @@
     --shadow-lg: 0 10px 40px rgba(0, 0, 0, .12);
     --scrollbar-thumb: #cbd5e1;
     --input-bg: #f1f5f9;
+    --bg-toast: #e5f1ff;
+    --bg-loading1: rgba(0, 0, 0, 0.4);
+    --bg-loading2: rgba(0, 0, 0, 0.2);
+    --bg-loading3: rgba(0, 0, 0, 0.01);
 }
 
 /* ── CHẾ ĐỘ TỐI ── */
@@ -78,6 +82,10 @@
     --shadow-lg: 0 10px 40px rgba(0, 0, 0, .5);
     --scrollbar-thumb: #2d3f5e;
     --input-bg: #1a2236;
+    --bg-toast: #111827;
+    --bg-loading1: rgba(255, 255, 255, 0.4);
+    --bg-loading2: rgba(255, 255, 255, 0.2);
+    --bg-loading3: rgba(255, 255, 255, 0.01);
 }
 
 /* ── RESET & CƠ BẢN ── */
@@ -113,61 +121,58 @@ body {
     font-size: 13px;
     margin-top: 4px;
 }
+
+
+
 /* ============================================
-    LOADING TOÀN CỤC (SPA)
-    ============================================ */
-.app-loading {
+    Loading toàn cục
+   ============================================ */
+.loading {
     position: fixed;
     inset: 0;
-    background: var(--bg-overlay);
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 1000;
+    align-items: center;
+    background: radial-gradient(circle at center, var(--bg-loading3) 0%, /* màu sáng ở giữa */
+    var(--bg-loading2) 20%, /* chuyển dần */
+    var(--bg-loading1) 100% /* tối ở 4 góc */
+    );
+    z-index: 9999;
+    pointer-events: none;
 }
 
-.app-loading[hidden] {
-    display: none;
+
+.loader {
+    width: 80px;
 }
 
-.app-loading-inner {
-    display: inline-flex;
+.loader-wrapper {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    border-radius: 999px;
-    box-shadow: var(--shadow-sm);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    user-select: none;
 }
 
-/* Icon vô lăng xoay */
-.app-loading-wheel {
-    width: 20px;
-    height: 20px;
-    color: var(--accent);
-    animation: appSpin 0.8s linear infinite;
-    flex-shrink: 0;
+/* Con đường */
+.road {
+    width: 120px;
+    height: 6px;
+    border-radius: 4px;
+    background: repeating-linear-gradient( 90deg, #fff 0 10px, #000 10px 20px );
+    animation: roadMove 0.2s linear infinite;
 }
 
-@keyframes appSpin {
+/* Animation chạy */
+@keyframes roadMove {
     from {
-        transform: rotate(0deg);
+        background-position: 0 0;
     }
 
     to {
-        transform: rotate(360deg);
+        background-position: -20px 0;
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .app-loading-wheel {
-        animation: none;
-    }
-}
 
 a {
     text-decoration: none;
@@ -211,7 +216,7 @@ a {
     min-width: 320px;
     max-width: 420px;
     padding: 16px;
-    background: white;
+    background: var(--bg-toast);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
     pointer-events: auto;
@@ -249,12 +254,12 @@ a {
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 4px;
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 .toast-message {
     font-size: 14px;
-    color: #525252;
+    color: var(--text-primary);
     line-height: 1.5;
 }
 
@@ -317,28 +322,6 @@ a {
     .toast-info .toast-icon {
         background: #dbeafe;
         color: #3b82f6;
-    }
-
-/* Dark theme */
-[data-theme="dark"] .toast {
-    background: #262626;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .toast-title {
-    color: #fafafa;
-}
-
-[data-theme="dark"] .toast-message {
-    color: #d4d4d4;
-}
-
-[data-theme="dark"] .toast-close {
-    color: #a3a3a3;
-}
-
-    [data-theme="dark"] .toast-close:hover {
-        color: #fafafa;
     }
 
 /* Responsive */

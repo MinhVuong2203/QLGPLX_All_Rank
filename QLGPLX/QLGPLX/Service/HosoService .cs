@@ -1,9 +1,8 @@
 using AutoMapper;
 using Backend.DTO.HoSo;
+using Backend.Repository;
 using Backend.Service.Interface;
 using QLGPLX.Models;
-using QLGPLX.Repository;
-
 
 namespace Backend.Service;
 
@@ -26,171 +25,97 @@ public class HosoService : IHosoService
         _mapper = mapper;
     }
 
+    // ================= GET =================
     public async Task<List<HosoDTO>> GetAllAsync()
     {
-        var hosos = await _hosoRepository.GetAllAsync();
-        return hosos.Select(h => new HosoDTO
-        {
-            HoSoId = h.HoSoId,
-            PublicId = h.PublicId,
-            MaCongDan = h.MaCongDan,
-            MaHang = h.MaHang,
-            NgayNop = h.NgayNop,
-            TrangThai = h.TrangThai,
-            TrangThaiThanhToan = h.TrangThaiThanhToan,
-            GhiChu = h.GhiChu,
-            TenCongDan = h.MaCongDanNavigation?.HoTen,
-            CCCD = h.MaCongDanNavigation?.Cccd,
-            TenHang = h.MaHangNavigation?.TenHang
-        }).ToList();
+        var list = await _hosoRepository.GetAllAsync();
+        return _mapper.Map<List<HosoDTO>>(list);
     }
 
     public async Task<HosoDTO?> GetByIdAsync(int id)
     {
         var hoso = await _hosoRepository.GetByIdAsync(id);
-        if (hoso == null) return null;
-
-        return new HosoDTO
-        {
-            HoSoId = hoso.HoSoId,
-            PublicId = hoso.PublicId,
-            MaCongDan = hoso.MaCongDan,
-            MaHang = hoso.MaHang,
-            NgayNop = hoso.NgayNop,
-            TrangThai = hoso.TrangThai,
-            TrangThaiThanhToan = hoso.TrangThaiThanhToan,
-            GhiChu = hoso.GhiChu,
-            TenCongDan = hoso.MaCongDanNavigation?.HoTen,
-            CCCD = hoso.MaCongDanNavigation?.Cccd,
-            TenHang = hoso.MaHangNavigation?.TenHang
-        };
+        return hoso == null ? null : _mapper.Map<HosoDTO>(hoso);
     }
 
     public async Task<HosoDTO?> GetByPublicIdAsync(Guid publicId)
     {
         var hoso = await _hosoRepository.GetByPublicIdAsync(publicId);
-        if (hoso == null) return null;
-
-        return new HosoDTO
-        {
-            HoSoId = hoso.HoSoId,
-            PublicId = hoso.PublicId,
-            MaCongDan = hoso.MaCongDan,
-            MaHang = hoso.MaHang,
-            NgayNop = hoso.NgayNop,
-            TrangThai = hoso.TrangThai,
-            TrangThaiThanhToan = hoso.TrangThaiThanhToan,
-            GhiChu = hoso.GhiChu,
-            TenCongDan = hoso.MaCongDanNavigation?.HoTen,
-            CCCD = hoso.MaCongDanNavigation?.Cccd,
-            TenHang = hoso.MaHangNavigation?.TenHang
-        };
+        return hoso == null ? null : _mapper.Map<HosoDTO>(hoso);
     }
 
+    public async Task<List<HosoDTO>> GetByCongDanAsync(int maCongDan)
+    {
+        var list = await _hosoRepository.GetByCongDanAsync(maCongDan);
+        return _mapper.Map<List<HosoDTO>>(list);
+    }
+
+    // ================= CREATE =================
     public async Task<HosoDTO> CreateAsync(CreateHosoDTO dto)
     {
-        // Kiểm tra công dân tồn tại
         var congdan = await _congdanRepository.GetByIdAsync(dto.MaCongDan);
         if (congdan == null)
             throw new ArgumentException("Công dân không tồn tại");
 
-        // Kiểm tra hạng GPLX tồn tại
         var hang = await _hangRepository.GetByIdAsync(dto.MaHang);
         if (hang == null)
             throw new ArgumentException("Hạng GPLX không tồn tại");
 
-        var hoso = new Hoso
-        {
-            PublicId = Guid.NewGuid(),
-            MaCongDan = dto.MaCongDan,
-            MaHang = dto.MaHang,
-            NgayNop = DateTime.Now,
-            TrangThai = "Đang xử lý",
-            TrangThaiThanhToan = false,
-            GhiChu = dto.GhiChu
-        };
+        var exists = await _hosoRepository
+            .ExistsByMaCongDanAndMaHangAsync(dto.MaCongDan, dto.MaHang);
 
+        if (exists)
+            throw new InvalidOperationException($"Đã tồn tại hồ sơ hạng {dto.MaHang}");
+
+        var hoso = _mapper.Map<Hoso>(dto);
+
+        hoso.PublicId = Guid.NewGuid();
+        hoso.NgayNop = DateTime.Now;
+       
         var created = await _hosoRepository.CreateAsync(hoso);
-        
-        // Load navigation properties
         var result = await _hosoRepository.GetByIdAsync(created.HoSoId);
-        
-        return new HosoDTO
-        {
-            HoSoId = result!.HoSoId,
-            PublicId = result.PublicId,
-            MaCongDan = result.MaCongDan,
-            MaHang = result.MaHang,
-            NgayNop = result.NgayNop,
-            TrangThai = result.TrangThai,
-            TrangThaiThanhToan = result.TrangThaiThanhToan,
-            GhiChu = result.GhiChu,
-            TenCongDan = result.MaCongDanNavigation?.HoTen,
-            CCCD = result.MaCongDanNavigation?.Cccd,
-            TenHang = result.MaHangNavigation?.TenHang
-        };
+
+        return _mapper.Map<HosoDTO>(result);
     }
 
-    public async Task<HosoDTO?> UpdateAsync(int id, CreateHosoDTO dto)
+    // ================= UPDATE (DÙNG UpdateHosoDTO) =================
+    public async Task<HosoDTO?> UpdateAsync(int id, UpdateHosoDTO dto)
     {
         var hoso = await _hosoRepository.GetByIdAsync(id);
         if (hoso == null) return null;
 
-        // Kiểm tra công dân tồn tại
-        var congdan = await _congdanRepository.GetByIdAsync(dto.MaCongDan);
-        if (congdan == null)
-            throw new ArgumentException("Công dân không tồn tại");
+        // ❗ Không cho đổi công dân
+        // giữ nguyên hoso.MaCongDan
 
-        // Kiểm tra hạng GPLX tồn tại
         var hang = await _hangRepository.GetByIdAsync(dto.MaHang);
         if (hang == null)
             throw new ArgumentException("Hạng GPLX không tồn tại");
 
-        hoso.MaCongDan = dto.MaCongDan;
-        hoso.MaHang = dto.MaHang;
-        hoso.GhiChu = dto.GhiChu;
+        // check trùng (trừ chính nó)
+        var exists = await _hosoRepository
+            .ExistsByMaCongDanAndMaHangAsync(hoso.MaCongDan, dto.MaHang);
+
+        if (exists && hoso.MaHang != dto.MaHang)
+            throw new InvalidOperationException("Đã tồn tại hồ sơ");
+
+        // 🔥 map tự động
+        _mapper.Map(dto, hoso);
 
         await _hosoRepository.UpdateAsync(hoso);
-        
+
         var result = await _hosoRepository.GetByIdAsync(id);
-        
-        return new HosoDTO
-        {
-            HoSoId = result!.HoSoId,
-            PublicId = result.PublicId,
-            MaCongDan = result.MaCongDan,
-            MaHang = result.MaHang,
-            NgayNop = result.NgayNop,
-            TrangThai = result.TrangThai,
-            TrangThaiThanhToan = result.TrangThaiThanhToan,
-            GhiChu = result.GhiChu,
-            TenCongDan = result.MaCongDanNavigation?.HoTen,
-            CCCD = result.MaCongDanNavigation?.Cccd,
-            TenHang = result.MaHangNavigation?.TenHang
-        };
+        return _mapper.Map<HosoDTO>(result);
     }
 
+    // ================= DELETE =================
     public async Task<bool> DeleteAsync(int id)
     {
         return await _hosoRepository.DeleteAsync(id);
     }
 
-    public async Task<List<HosoDTO>> GetByCongDanAsync(int maCongDan)
+    // ================= CHECK =================
+    public async Task<bool> ExistsByMaCongDanAndMaHangAsync(int maCongDan, string maHang)
     {
-        var hosos = await _hosoRepository.GetByCongDanAsync(maCongDan);
-        return hosos.Select(h => new HosoDTO
-        {
-            HoSoId = h.HoSoId,
-            PublicId = h.PublicId,
-            MaCongDan = h.MaCongDan,
-            MaHang = h.MaHang,
-            NgayNop = h.NgayNop,
-            TrangThai = h.TrangThai,
-            TrangThaiThanhToan = h.TrangThaiThanhToan,
-            GhiChu = h.GhiChu,
-            TenCongDan = h.MaCongDanNavigation?.HoTen,
-            CCCD = h.MaCongDanNavigation?.Cccd,
-            TenHang = h.MaHangNavigation?.TenHang
-        }).ToList();
+        return await _hosoRepository.ExistsByMaCongDanAndMaHangAsync(maCongDan, maHang);
     }
 }

@@ -68,5 +68,23 @@ namespace QLGPLX.Controllers
             return Ok();
         }
 
+        [HttpGet("chua-co-hoso")]
+        public async Task<IActionResult> GetChuaCoHoSo()
+        {
+            return Ok(await _congdanService.GetChuaCoHoSo());
+        }
+
+        [HttpGet("hom-nay")]
+        public async Task<IActionResult> GetHomNay()
+        {
+            return Ok(await _congdanService.GetHomNay());
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string cccd)
+        {
+            return Ok(await _congdanService.SearchCCCD(cccd));
+        }
+
     }
 }

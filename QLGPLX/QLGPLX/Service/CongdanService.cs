@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using Backend.Repository;
 using Backend.DTO.Congdan;
 using Backend.Service.Interface;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.EntityFrameworkCore;
 using QLGPLX.Models;
-using QLGPLX.Repository;
 namespace Backend.Service;
 public class CongdanService : ICongDanService
 {
@@ -142,6 +142,24 @@ public class CongdanService : ICongDanService
     {
         var congdan = _repo.GetById(id);
         return congdan == null ? null : _mapper.Map<CongdanDTO>(congdan);
+    }
+
+    public async Task<List<CongdanDTO>> GetChuaCoHoSo()
+    {
+        var data = await _repo.GetCongDanChuaCoHoSo();
+        return _mapper.Map<List<CongdanDTO>>(data);
+    }
+
+    public async Task<List<CongdanDTO>> GetHomNay()
+    {
+        var data = await _repo.GetCongDanHomNay();
+        return _mapper.Map<List<CongdanDTO>>(data);
+    }
+
+    public async Task<List<CongdanDTO>> SearchCCCD(string cccd)
+    {
+        var data = await _repo.SearchByCCCD(cccd);
+        return _mapper.Map<List<CongdanDTO>>(data);
     }
 
 }
