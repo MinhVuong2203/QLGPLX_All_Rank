@@ -82,6 +82,21 @@ public class HosoController : ControllerBase
         }
     }
 
+    // GET: api/Hoso/check-exists?maCongDan=1&maHang=A1
+    [HttpGet("check-exists")]
+    public async Task<ActionResult<bool>> CheckExists([FromQuery] int maCongDan, [FromQuery] string maHang)
+    {
+        try
+        {
+            var exists = await _hosoService.ExistsByMaCongDanAndMaHangAsync(maCongDan, maHang);
+            return Ok(new { exists });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi kiểm tra hồ sơ", error = ex.Message });
+        }
+    }
+
     // POST: api/Hoso
     [HttpPost]
     public async Task<ActionResult<HosoDTO>> Create([FromBody] CreateHosoDTO dto)
@@ -106,7 +121,7 @@ public class HosoController : ControllerBase
 
     // PUT: api/Hoso/5
     [HttpPut("{id}")]
-    public async Task<ActionResult<HosoDTO>> Update(int id, [FromBody] CreateHosoDTO dto)
+    public async Task<ActionResult<HosoDTO>> Update(int id, [FromBody] UpdateHosoDTO dto)
     {
         try
         {

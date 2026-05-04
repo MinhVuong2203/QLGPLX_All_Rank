@@ -8,7 +8,8 @@ public interface IHosoService
     Task<HosoDTO?> GetByIdAsync(int id);
     Task<HosoDTO?> GetByPublicIdAsync(Guid publicId);
     Task<HosoDTO> CreateAsync(CreateHosoDTO dto);
-    Task<HosoDTO?> UpdateAsync(int id, CreateHosoDTO dto);
+    Task<HosoDTO?> UpdateAsync(int id, UpdateHosoDTO dto);
     Task<bool> DeleteAsync(int id);
     Task<List<HosoDTO>> GetByCongDanAsync(int maCongDan);
+    Task<bool> ExistsByMaCongDanAndMaHangAsync(int maCongDan, string maHang);
 }

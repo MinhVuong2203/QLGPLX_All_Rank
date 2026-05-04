@@ -2,8 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using QLGPLX.Data;
 using QLGPLX.Models;
 
-namespace QLGPLX.Repository;
-
+namespace Backend.Repository;
 public class HosoRepository
 {
     private readonly GplxDbContext _context;
@@ -47,7 +46,7 @@ public class HosoRepository
 
     public async Task<Hoso?> UpdateAsync(Hoso hoso)
     {
-        _context.Entry(hoso).State = EntityState.Modified;
+        _context.Hosos.Update(hoso);
         await _context.SaveChangesAsync();
         return hoso;
     }
@@ -75,5 +74,11 @@ public class HosoRepository
             .Where(h => h.MaCongDan == maCongDan)
             .OrderByDescending(h => h.NgayNop)
             .ToListAsync();
+    }
+
+    public async Task<bool> ExistsByMaCongDanAndMaHangAsync(int maCongDan, string maHang)
+    {
+        return await _context.Hosos
+            .AnyAsync(h => h.MaCongDan == maCongDan && h.MaHang == maHang);
     }
 }

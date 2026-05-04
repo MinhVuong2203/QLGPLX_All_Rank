@@ -9,4 +9,8 @@ public interface ICongDanService
     Task Create(CreateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham);
     Task Update(Guid id, UpdateCongdanDTO dto, IFormFile? anh3x4, IFormFile? giayKham);
     void Delete(Guid id);
+    Task<List<CongdanDTO>> GetChuaCoHoSo();
+    Task<List<CongdanDTO>> GetHomNay();
+    Task<List<CongdanDTO>> SearchCCCD(string cccd);
+   
 }

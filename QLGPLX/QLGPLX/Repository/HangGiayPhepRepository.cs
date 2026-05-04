@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using QLGPLX.Data;
 using QLGPLX.Models;
 
-namespace QLGPLX.Repository;
+namespace Backend.Repository;
 
 public class HangGiayPhepRepository
 {

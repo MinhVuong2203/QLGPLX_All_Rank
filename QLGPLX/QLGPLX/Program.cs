@@ -1,4 +1,7 @@
 ﻿using Backend.Configurations;
+using Backend.Repository;
+using Backend.Service;
+using Backend.Service.Interface;
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -26,6 +29,7 @@ builder.Services.Scan(scan => scan
         .AsSelf()
         .WithScopedLifetime()
 );
+
 
 
 builder.Services.Configure<CloudinarySettings>(
@@ -66,6 +70,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();
