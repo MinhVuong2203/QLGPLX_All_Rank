@@ -31,10 +31,9 @@ public partial class Kythi
     [StringLength(10)]
     public string? MaHang { get; set; }
 
-    public int? SoLuongToiDa { get; set; }
+    public int SoLuongToiDa { get; set; }
 
-    [StringLength(30)]
-    public string? TrangThai { get; set; }
+    public int SoLuongDangKy { get; set; }
 
     [InverseProperty("KyThi")]
     public virtual ICollection<Ketquathi> Ketquathis { get; set; } = new List<Ketquathi>();

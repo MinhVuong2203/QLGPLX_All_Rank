@@ -167,8 +167,6 @@ public partial class GplxDbContext : DbContext
         {
             entity.HasKey(e => e.KyThiId).HasName("PRIMARY");
 
-            entity.Property(e => e.TrangThai).HasDefaultValueSql("'Sắp diễn ra'");
-
             entity.HasOne(d => d.MaHangNavigation).WithMany(p => p.Kythis).HasConstraintName("kythi_ibfk_1");
         });
 
