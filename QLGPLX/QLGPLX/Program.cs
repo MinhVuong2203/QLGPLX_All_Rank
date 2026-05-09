@@ -17,6 +17,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Đăng ký tất cả service và Repositories
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<Program>()
@@ -66,6 +77,8 @@ if (app.Environment.IsDevelopment())
 //app.Urls.Add($"http://*:{port}");
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 

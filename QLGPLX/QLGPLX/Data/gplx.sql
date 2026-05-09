@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS qlgplx;
 USE qlgplx;
 
-
 -- ================== CÔNG DÂN ==================
 CREATE TABLE CongDan (
     MaCongDan INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,7 +58,7 @@ CREATE TABLE HoSo (
     MaCongDan INT NOT NULL,
     MaHang VARCHAR(10) NOT NULL,
     NgayNop DATETIME DEFAULT CURRENT_TIMESTAMP,
-    TrangThai VARCHAR(30) DEFAULT 'Đang xử lý', -- Đang xử lý, trong quá trình thi, hoàn thành, đã cấp  
+    TrangThai VARCHAR(30) DEFAULT 'Đang xử lý', -- Đang xử lý, Đã duyệt, Từ chối, hoàn thành, đã cấp  
     TrangThaiThanhToan TINYINT(1) DEFAULT 0,
     GhiChu VARCHAR(255),
     FOREIGN KEY (MaCongDan) REFERENCES CongDan(MaCongDan),
@@ -75,10 +74,21 @@ CREATE TABLE KyThi (
     NgayKetThuc DATE,
     DiaDiem VARCHAR(255),
     MaHang VARCHAR(10),
-    SoLuongToiDa INT,
+    SoLuongToiDa INT DEFAULT 100,
+    SoLuongDangKy INT DEFAULT 0,
     TrangThai VARCHAR(30) DEFAULT 'Sắp diễn ra',
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)
 );
+-- Trạng thái tự động
+ALTER TABLE KyThi
+ADD TrangThai VARCHAR(30)
+GENERATED ALWAYS AS (
+    CASE
+        WHEN CURDATE() < NgayBatDau THEN 'Sắp diễn ra'
+        WHEN CURDATE() BETWEEN NgayBatDau AND NgayKetThuc THEN 'Đang diễn ra'
+        ELSE 'Đã kết thúc'
+    END
+) STORED;
 
 -- ================== LỊCH THI ==================
 CREATE TABLE LichThi (
@@ -216,11 +226,77 @@ INSERT INTO HangGiayPhep (MaHang, TenHang, LoaiXe, DoTuoiToiThieu, ThoiHanNam, Y
 ('D2E', 'D2 kéo rơ-moóc', 'Khách trung + rơ-moóc', 27, 5, 1, 'Xe D2 kéo rơ-moóc >750kg'),
 ('DE', 'D kéo rơ-moóc', 'Khách lớn + rơ-moóc', 27, 5, 1, 'Xe D kéo rơ-moóc, xe nối toa');
 
-INSERT INTO MonThi (Mon ,TenMon) VALUES
+INSERT INTO MonThi (TenMon) VALUES
 ('Lý thuyết'),
 ('Mô phỏng'),
 ('Sa hình'),
 ('Đường trường');
+
+-- TRIGGER --
+-- Tăng +1 vào SoLuongDangKy mỗi khi có insert KetQuaThi
+-- (đồng nghĩa với việc thêm 1 hồ sơ vào Kỳ thi)
+DELIMITER $$
+
+CREATE TRIGGER trg_ketquathi_before_insert
+BEFORE INSERT ON KetQuaThi
+FOR EACH ROW
+BEGIN
+    DECLARE soDangKy INT;
+    DECLARE soToiDa INT;
+
+    -- chỉ tính lần thi đầu
+    IF NEW.LanThi = 1 THEN
+
+        SELECT SoLuongDangKy, SoLuongToiDa
+        INTO soDangKy, soToiDa
+        FROM KyThi
+        WHERE KyThiID = NEW.KyThiID
+        FOR UPDATE;
+
+        -- ❌ nếu full thì chặn
+        IF soDangKy >= soToiDa THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ky thi da du so luong';
+        END IF;
+
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_ketquathi_after_insert
+AFTER INSERT ON KetQuaThi
+FOR EACH ROW
+BEGIN
+    IF NEW.LanThi = 1 THEN
+        UPDATE KyThi
+        SET SoLuongDangKy = SoLuongDangKy + 1
+        WHERE KyThiID = NEW.KyThiID;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- Giảm -1 vào SoLuongDangKy mỗi khi có insert KetQuaThi
+-- (đồng nghĩa với việc xóa 1 hồ sơ vào Kỳ thi)
+DELIMITER $$
+
+CREATE TRIGGER trg_ketquathi_after_delete
+AFTER DELETE ON KetQuaThi
+FOR EACH ROW
+BEGIN
+    IF OLD.LanThi = 1 THEN
+        UPDATE KyThi
+        SET SoLuongDangKy = GREATEST(SoLuongDangKy - 1, 0)
+        WHERE KyThiID = OLD.KyThiID;
+    END IF;
+END$$
+
+DELIMITER ;
+
 
 
 

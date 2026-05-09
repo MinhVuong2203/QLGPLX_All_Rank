@@ -195,6 +195,10 @@ Hệ thống tập trung vào:
 
 Chuỗi Scaffold: Scaffold-DbContext "server=localhost;database=;user=;password=;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -ContextDir Data -Context GplxDbContext -DataAnnotations -NoOnConfiguring -Force
 
+
+## Các Models liên quan
+## Các biến css màu sắc
+## File MainLayout
 ```
 QLGPLX_All_Rank
 ├─ Dockerfile
@@ -206,14 +210,23 @@ QLGPLX_All_Rank
 │  │  ├─ Configurations
 │  │  │  └─ CloudinarySettings.cs
 │  │  ├─ Controllers
-│  │  │  └─ CongDanController.cs
+│  │  │  ├─ CongDanController.cs
+│  │  │  ├─ HangGiayPhepController.cs
+│  │  │  └─ HosoController.cs
 │  │  ├─ Data
+│  │  │  ├─ gplx.sql
 │  │  │  └─ GplxDbContext.cs
 │  │  ├─ DTO
-│  │  │  └─ Congdan
-│  │  │     ├─ CongdanDTO.cs
-│  │  │     ├─ CreateCongdanDTO.cs
-│  │  │     └─ UpdateCongdanDTO.cs
+│  │  │  ├─ Congdan
+│  │  │  │  ├─ CongdanDTO.cs
+│  │  │  │  ├─ CreateCongdanDTO.cs
+│  │  │  │  └─ UpdateCongdanDTO.cs
+│  │  │  ├─ HangGiayPhep
+│  │  │  │  └─ HangGiayPhepDTO.cs
+│  │  │  └─ HoSo
+│  │  │     ├─ CreateHosoDTO.cs
+│  │  │     ├─ HosoDTO.cs
+│  │  │     └─ UpdateHosoDTO.cs
 │  │  ├─ Mapping
 │  │  │  └─ AutoMapperProfile.cs
 │  │  ├─ Models
@@ -237,13 +250,19 @@ QLGPLX_All_Rank
 │  │  │  └─ launchSettings.json
 │  │  ├─ QLGPLX.http
 │  │  ├─ Repository
-│  │  │  └─ CongdanRepository.cs
+│  │  │  ├─ CongdanRepository.cs
+│  │  │  ├─ HangGiayPhepRepository.cs
+│  │  │  └─ HosoRepository.cs
 │  │  ├─ Service
 │  │  │  ├─ CloudinaryService.cs
 │  │  │  ├─ CongdanService.cs
+│  │  │  ├─ HangGiayPhepService.cs
+│  │  │  ├─ HosoService .cs
 │  │  │  └─ Interface
 │  │  │     ├─ ICloudinaryService.cs
-│  │  │     └─ ICongdanService.cs
+│  │  │     ├─ ICongdanService.cs
+│  │  │     ├─ IHangGiayPhepService.cs
+│  │  │     └─ IHosoService.cs
 │  │  └─ wwwroot
 │  ├─ QLGPLX.sln
 │  └─ UI
@@ -271,14 +290,23 @@ QLGPLX_All_Rank
    │  │  │  ├─ SuaCongDan.razor
    │  │  │  └─ ThemCongDan.razor
    │  │  ├─ Error.razor
-   │  │  └─ Home.razor
+   │  │  ├─ Home.razor
+   │  │  └─ HoSo
+   │  │     ├─ Hoso.razor
+   │  │     └─ ThemHoSo.razor
    │  ├─ Routes.razor
    │  └─ _Imports.razor
    ├─ DTO
-   │  └─ Congdan
-   │     ├─ CongdanDTO.cs
-   │     ├─ CreateCongdanDTO.cs
-   │     └─ UpdateCongdanDTO.cs
+   │  ├─ Congdan
+   │  │  ├─ CongdanDTO.cs
+   │  │  ├─ CreateCongdanDTO.cs
+   │  │  └─ UpdateCongdanDTO.cs
+   │  ├─ HangGiayPhep
+   │  │  └─ HangGiayPhepDTO.cs
+   │  └─ Hoso
+   │     ├─ CreateHosoDTO.cs
+   │     ├─ HosoDTO.cs
+   │     └─ UpdateHosoDTO.cs
    ├─ Program.cs
    ├─ Properties
    │  └─ launchSettings.json
@@ -291,20 +319,19 @@ QLGPLX_All_Rank
       │  └─ bootstrap.min.css.map
       ├─ css
       │  ├─ app.css
-      │  └─ congdan
-      │     ├─ ds_congdan.css
-      │     └─ them_cong_dan.css
+      │  ├─ congdan
+      │  │  ├─ ds_congdan.css
+      │  │  └─ them_cong_dan.css
+      │  └─ hoso
+      │     ├─ ds-ho-so.css
+      │     └─ them-ho-so.css
       ├─ data
       │  └─ tinh_tp.json
       ├─ favicon.png
       ├─ image
-      │  ├─ avatar
-      │  └─ gksk
+      │  └─ loading.gif
       └─ js
          └─ core
             └─ loading.js
 
 ```
-## Các Models liên quan
-## Các biến css màu sắc
-## File MainLayout
