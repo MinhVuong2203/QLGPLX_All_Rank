@@ -21,8 +21,10 @@ public partial class HangMonThi
     public int MonThiid { get; set; }
 
     [Column("diem_dat")]
-    [Precision(5, 2)]
-    public decimal DiemDat { get; set; }
+    public int DiemDat { get; set; }
+
+    [Column("diem_toi_da")]
+    public int DiemToiDa { get; set; }
 
     [ForeignKey("MaHang")]
     [InverseProperty("HangMonThis")]

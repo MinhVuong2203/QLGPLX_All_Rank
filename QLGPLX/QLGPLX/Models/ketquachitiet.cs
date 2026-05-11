@@ -16,13 +16,12 @@ public partial class Ketquachitiet
     public int ChiTietId { get; set; }
 
     [Column("KetQuaID")]
-    public int? KetQuaId { get; set; }
+    public int KetQuaId { get; set; }
 
     [Column("MonThiID")]
-    public int? MonThiId { get; set; }
+    public int MonThiId { get; set; }
 
-    [Precision(5, 2)]
-    public decimal? Diem { get; set; }
+    public int Diem { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? ThoiGianBatDau { get; set; }
@@ -35,9 +34,9 @@ public partial class Ketquachitiet
 
     [ForeignKey("KetQuaId")]
     [InverseProperty("Ketquachitiets")]
-    public virtual Ketquathi? KetQuaNavigation { get; set; }
+    public virtual Ketquathi KetQuaNavigation { get; set; } = null!;
 
     [ForeignKey("MonThiId")]
     [InverseProperty("Ketquachitiets")]
-    public virtual Monthi? MonThi { get; set; }
+    public virtual Monthi MonThi { get; set; } = null!;
 }

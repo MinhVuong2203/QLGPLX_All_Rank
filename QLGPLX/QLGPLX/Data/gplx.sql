@@ -45,11 +45,13 @@ DROP TABLE IF EXISTS hang_mon_thi;
 CREATE TABLE hang_mon_thi (
     ma_hang VARCHAR(10) NOT NULL,
     mon_thiid INT NOT NULL,
-    diem_dat DECIMAL(5,2) NOT NULL,
+    diem_dat INT NOT NULL,
+	diem_toi_da INT NOT NULL,
     PRIMARY KEY (ma_hang, mon_thiid),
     FOREIGN KEY (ma_hang) REFERENCES HangGiayPhep(MaHang),
     FOREIGN KEY (mon_thiid) REFERENCES MonThi(MonThiID)
 );
+
 
 -- ================== HỒ SƠ ==================
 CREATE TABLE HoSo (
@@ -76,19 +78,8 @@ CREATE TABLE KyThi (
     MaHang VARCHAR(10),
     SoLuongToiDa INT DEFAULT 100,
     SoLuongDangKy INT DEFAULT 0,
-    TrangThai VARCHAR(30) DEFAULT 'Sắp diễn ra',
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)
 );
--- Trạng thái tự động
-ALTER TABLE KyThi
-ADD TrangThai VARCHAR(30)
-GENERATED ALWAYS AS (
-    CASE
-        WHEN CURDATE() < NgayBatDau THEN 'Sắp diễn ra'
-        WHEN CURDATE() BETWEEN NgayBatDau AND NgayKetThuc THEN 'Đang diễn ra'
-        ELSE 'Đã kết thúc'
-    END
-) STORED;
 
 -- ================== LỊCH THI ==================
 CREATE TABLE LichThi (
@@ -103,8 +94,8 @@ CREATE TABLE LichThi (
 -- ================== KẾT QUẢ ==================
 CREATE TABLE KetQuaThi (
     KetQuaID INT AUTO_INCREMENT PRIMARY KEY,
-    HoSoID INT,
-    KyThiID INT,
+    HoSoID INT NOT NULL,
+    KyThiID INT NOT NULL,
     KetQuaTongHop VARCHAR(20),
     NgayKetLuan DATETIME DEFAULT CURRENT_TIMESTAMP,
     LanThi INT DEFAULT 1,
@@ -117,9 +108,9 @@ CREATE TABLE KetQuaThi (
 -- ================== KẾT QUẢ CHI TIẾT ==================
 CREATE TABLE KetQuaChiTiet (
     ChiTietID INT AUTO_INCREMENT PRIMARY KEY,
-    KetQuaID INT,
-    MonThiID INT,
-    Diem DECIMAL(5,2),
+    KetQuaID INT NOT NULL,
+    MonThiID INT NOT NULL,
+    Diem INT,
     ThoiGianBatDau DATETIME,
     KetQua VARCHAR(20),
     GhiChu VARCHAR(255),
@@ -137,7 +128,7 @@ CREATE TABLE GiayPhep (
     NgayCap DATE,
     NgayHetHan DATE,
     SoDiem INT DEFAULT 12,
-    TrangThai VARCHAR(30) DEFAULT 'Còn hiệu lực',
+    TrangThai VARCHAR(30) DEFAULT 'Còn hiệu lực', -- Chờ duyệt, còn hiệu lực, hết hạn, bị thu hồi
     GhiChu VARCHAR(255),
     FOREIGN KEY (MaCongDan) REFERENCES CongDan(MaCongDan),
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)
@@ -232,6 +223,79 @@ INSERT INTO MonThi (TenMon) VALUES
 ('Sa hình'),
 ('Đường trường');
 
+INSERT INTO hang_mon_thi 
+(ma_hang, mon_thiid, diem_dat, diem_toi_da)
+VALUES
+-- A1
+('A1', 1, 21, 25),
+('A1', 3, 80, 100),
+-- A
+('A', 1, 23, 25),
+('A', 3, 80, 100),
+-- B1
+('B1', 1, 23, 25),
+('B1', 3, 80, 100),
+-- B
+('B', 1, 27, 30),
+('B', 2, 35, 50),
+('B', 3, 80, 100),
+('B', 4, 80, 100),
+-- C1
+('C1', 1, 32, 35),
+('C1', 2, 35, 50),
+('C1', 3, 80, 100),
+('C1', 4, 80, 100),
+-- C
+('C', 1, 36, 40),
+('C', 2, 35, 50),
+('C', 3, 80, 100),
+('C', 4, 80, 100),
+-- D1
+('D1', 1, 41, 45),
+('D1', 2, 35, 50),
+('D1', 3, 80, 100),
+('D1', 4, 80, 100),
+-- D2
+('D2', 1, 41, 45),
+('D2', 2, 35, 50),
+('D2', 3, 80, 100),
+('D2', 4, 80, 100),
+-- D
+('D', 1, 41, 45),
+('D', 2, 35, 50),
+('D', 3, 80, 100),
+('D', 4, 80, 100),
+-- BE
+('BE', 1, 41, 45),
+('BE', 2, 35, 50),
+('BE', 3, 80, 100),
+('BE', 4, 80, 100),
+-- C1E
+('C1E', 1, 41, 45),
+('C1E', 2, 35, 50),
+('C1E', 3, 80, 100),
+('C1E', 4, 80, 100),
+-- CE
+('CE', 1, 41, 45),
+('CE', 2, 35, 50),
+('CE', 3, 80, 100),
+('CE', 4, 80, 100),
+-- D1E
+('D1E', 1, 41, 45),
+('D1E', 2, 35, 50),
+('D1E', 3, 80, 100),
+('D1E', 4, 80, 100),
+-- D2E
+('D2E', 1, 41, 45),
+('D2E', 2, 35, 50),
+('D2E', 3, 80, 100),
+('D2E', 4, 80, 100),
+-- DE
+('DE', 1, 41, 45),
+('DE', 2, 35, 50),
+('DE', 3, 80, 100),
+('DE', 4, 80, 100);
+
 -- TRIGGER --
 -- Tăng +1 vào SoLuongDangKy mỗi khi có insert KetQuaThi
 -- (đồng nghĩa với việc thêm 1 hồ sơ vào Kỳ thi)
@@ -296,6 +360,175 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DROP trigger  trg_ketquachitiet_after_insert_ketquathi
+-- Trigger tự động tạo các kết quả thành phần cho Lần thi 1
+DELIMITER $$
+
+CREATE TRIGGER trg_ketquachitiet_after_insert_ketquathi
+AFTER INSERT ON KetQuaThi
+FOR EACH ROW
+BEGIN
+
+    IF NEW.LanThi = 1 THEN
+
+        INSERT INTO KetQuaChiTiet
+        (
+            KetQuaID,
+            MonThiID,
+            Diem,
+            ThoiGianBatDau,
+            KetQua,
+            GhiChu
+        )
+        SELECT
+            NEW.KetQuaID,
+            hmt.mon_thiid,
+            0,
+            NULL,
+            'Chưa thi',
+            NULL
+        FROM hang_mon_thi hmt
+        INNER JOIN KyThi kt
+            ON kt.MaHang = hmt.ma_hang
+        WHERE kt.KyThiID = NEW.KyThiID;
+
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- INSERT bảng ketquathi nếu Đạt thì tạo giấy phép
+-- =========================================
+DROP TRIGGER trg_ketquathi_insert_giayphep_insert
+DROP TRIGGER trg_ketquathi_update_giayphep_insert
+DELIMITER $$
+CREATE TRIGGER trg_ketquathi_insert_giayphep_insert
+AFTER INSERT ON KetQuaThi
+FOR EACH ROW
+BEGIN
+    DECLARE v_maCongDan INT;
+    DECLARE v_maHang VARCHAR(10);
+
+    -- Chỉ xử lý nếu Đạt
+    IF NEW.KetQuaTongHop = 'Đạt' THEN
+
+        -- Lấy thông tin từ hồ sơ
+        SELECT hs.MaCongDan, hs.MaHang
+        INTO v_maCongDan, v_maHang
+        FROM HoSo hs
+        WHERE hs.HoSoID = NEW.HoSoID;
+
+        -- Chỉ thêm nếu chưa có GPLX
+        IF NOT EXISTS (
+            SELECT 1
+            FROM GiayPhep gp
+            WHERE gp.MaCongDan = v_maCongDan
+              AND gp.MaHang = v_maHang
+        ) THEN
+
+            INSERT INTO GiayPhep (
+                MaCongDan,
+                MaHang,
+                SoGiayPhep,
+                NgayCap,
+                NgayHetHan,
+                TrangThai
+            )
+            VALUES (
+                v_maCongDan,
+                v_maHang,
+                CONCAT(
+                    'GPLX-',
+                    v_maCongDan,
+                    '-',
+                    UNIX_TIMESTAMP()
+                ),
+                CURDATE(),
+                DATE_ADD(CURDATE(), INTERVAL 10 YEAR),
+                'Chờ duyệt'
+            );
+
+        END IF;
+    END IF;
+END$$
+
+
+-- =========================================
+-- UPDATE ketquathi Đạt thì thêm giấy phép
+-- =========================================
+DELIMITER $$
+CREATE TRIGGER trg_ketquathi_update_giayphep_insert
+AFTER UPDATE ON KetQuaThi
+FOR EACH ROW
+BEGIN
+    DECLARE v_maCongDan INT;
+    DECLARE v_maHang VARCHAR(10);
+
+    -- Lấy thông tin hồ sơ
+    SELECT hs.MaCongDan, hs.MaHang
+    INTO v_maCongDan, v_maHang
+    FROM HoSo hs
+    WHERE hs.HoSoID = NEW.HoSoID;
+
+    -- =====================================
+    -- Từ KHÔNG ĐẠT -> ĐẠT
+    -- =====================================
+    IF OLD.KetQuaTongHop <> 'Đạt'
+       AND NEW.KetQuaTongHop = 'Đạt' THEN
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM GiayPhep gp
+            WHERE gp.MaCongDan = v_maCongDan
+              AND gp.MaHang = v_maHang
+        ) THEN
+
+            INSERT INTO GiayPhep (
+                MaCongDan,
+                MaHang,
+                SoGiayPhep,
+                NgayCap,
+                NgayHetHan,
+                TrangThai
+            )
+            VALUES (
+                v_maCongDan,
+                v_maHang,
+                CONCAT(
+                    'GPLX-',
+                    v_maCongDan,
+                    '-',
+                    UNIX_TIMESTAMP()
+                ),
+                CURDATE(),
+                DATE_ADD(CURDATE(), INTERVAL 10 YEAR),
+                'Chờ duyệt'
+            );
+
+        END IF;
+
+    END IF;
+
+    -- =====================================
+    -- Từ ĐẠT -> KHÔNG ĐẠT
+    -- =====================================
+    IF OLD.KetQuaTongHop = 'Đạt'
+       AND NEW.KetQuaTongHop <> 'Đạt' THEN
+
+        DELETE FROM GiayPhep
+        WHERE MaCongDan = v_maCongDan
+          AND MaHang = v_maHang;
+
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+
 
 
 
