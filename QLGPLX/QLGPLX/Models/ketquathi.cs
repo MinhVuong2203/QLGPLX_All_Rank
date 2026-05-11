@@ -16,10 +16,10 @@ public partial class Ketquathi
     public int KetQuaId { get; set; }
 
     [Column("HoSoID")]
-    public int? HoSoId { get; set; }
+    public int HoSoId { get; set; }
 
     [Column("KyThiID")]
-    public int? KyThiId { get; set; }
+    public int KyThiId { get; set; }
 
     [StringLength(20)]
     public string? KetQuaTongHop { get; set; }
@@ -34,12 +34,12 @@ public partial class Ketquathi
 
     [ForeignKey("HoSoId")]
     [InverseProperty("Ketquathis")]
-    public virtual Hoso? HoSo { get; set; }
+    public virtual Hoso HoSo { get; set; } = null!;
 
     [InverseProperty("KetQuaNavigation")]
     public virtual ICollection<Ketquachitiet> Ketquachitiets { get; set; } = new List<Ketquachitiet>();
 
     [ForeignKey("KyThiId")]
     [InverseProperty("Ketquathis")]
-    public virtual Kythi? KyThi { get; set; }
+    public virtual Kythi KyThi { get; set; } = null!;
 }
