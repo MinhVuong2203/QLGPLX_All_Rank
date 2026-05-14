@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("ketquachitiet")]
 [Index("KetQuaId", "MonThiId", Name = "KetQuaID", IsUnique = true)]
-[Index("MonThiId", Name = "MonThiID")]
+[Index("MonThiId", Name = "ketquachitiet_ibfk_2")]
 public partial class Ketquachitiet
 {
     [Key]

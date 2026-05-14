@@ -1,5 +1,6 @@
 ﻿using Backend.DTO.KyThi;
 using Backend.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "QUAN_LY_KY_THI")]
     public class KyThiController : ControllerBase
     {
         private readonly IKyThiService _service;

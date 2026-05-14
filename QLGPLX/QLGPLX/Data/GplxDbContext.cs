@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Backend.Models;
 using Microsoft.EntityFrameworkCore;
-using QLGPLX.Models;
 
-namespace QLGPLX.Data;
+namespace Backend.Data;
 
 public partial class GplxDbContext : DbContext
 {
@@ -14,7 +14,7 @@ public partial class GplxDbContext : DbContext
 
     public virtual DbSet<Canbo> Canbos { get; set; }
 
-    public virtual DbSet<CanboHoso> CanboHosos { get; set; }
+    public virtual DbSet<Chucnang> Chucnangs { get; set; }
 
     public virtual DbSet<Chucvu> Chucvus { get; set; }
 
@@ -34,13 +34,11 @@ public partial class GplxDbContext : DbContext
 
     public virtual DbSet<Kythi> Kythis { get; set; }
 
-    public virtual DbSet<Lichthi> Lichthis { get; set; }
-
-    public virtual DbSet<Loaivipham> Loaiviphams { get; set; }
+    public virtual DbSet<Lichsugiayphep> Lichsugiaypheps { get; set; }
 
     public virtual DbSet<Monthi> Monthis { get; set; }
 
-    public virtual DbSet<Vipham> Viphams { get; set; }
+    public virtual DbSet<Passwordresetotp> Passwordresetotps { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,23 +54,33 @@ public partial class GplxDbContext : DbContext
             entity.Property(e => e.TrangThai).HasDefaultValueSql("'1'");
 
             entity.HasOne(d => d.MaChucVuNavigation).WithMany(p => p.Canbos).HasConstraintName("canbo_ibfk_1");
+
+            entity.HasMany(d => d.MaChucNangs).WithMany(p => p.MaCanBos)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Phanquyencanbo",
+                    r => r.HasOne<Chucnang>().WithMany()
+                        .HasForeignKey("MaChucNang")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("phanquyencanbo_ibfk_2"),
+                    l => l.HasOne<Canbo>().WithMany()
+                        .HasForeignKey("MaCanBo")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("phanquyencanbo_ibfk_1"),
+                    j =>
+                    {
+                        j.HasKey("MaCanBo", "MaChucNang")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("phanquyencanbo");
+                        j.HasIndex(new[] { "MaChucNang" }, "MaChucNang");
+                    });
         });
 
-        modelBuilder.Entity<CanboHoso>(entity =>
+        modelBuilder.Entity<Chucnang>(entity =>
         {
-            entity.HasKey(e => new { e.MaCanBo, e.HoSoId, e.ThoiGian })
-                .HasName("PRIMARY")
-                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0 });
+            entity.HasKey(e => e.MaChucNang).HasName("PRIMARY");
 
-            entity.Property(e => e.ThoiGian).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            entity.HasOne(d => d.HoSo).WithMany(p => p.CanboHosos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("canbo_hoso_ibfk_2");
-
-            entity.HasOne(d => d.MaCanBoNavigation).WithMany(p => p.CanboHosos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("canbo_hoso_ibfk_1");
+            entity.Property(e => e.TrangThai).HasDefaultValueSql("'1'");
         });
 
         modelBuilder.Entity<Chucvu>(entity =>
@@ -144,11 +152,11 @@ public partial class GplxDbContext : DbContext
         {
             entity.HasKey(e => e.ChiTietId).HasName("PRIMARY");
 
-            entity.HasOne(d => d.KetQuaNavigation).WithMany(p => p.Ketquachitiets)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("ketquachitiet_ibfk_1");
+            entity.HasOne(d => d.KetQuaNavigation).WithMany(p => p.Ketquachitiets).HasConstraintName("ketquachitiet_ibfk_1");
 
-            entity.HasOne(d => d.MonThi).WithMany(p => p.Ketquachitiets).HasConstraintName("ketquachitiet_ibfk_2");
+            entity.HasOne(d => d.MonThi).WithMany(p => p.Ketquachitiets)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ketquachitiet_ibfk_2");
         });
 
         modelBuilder.Entity<Ketquathi>(entity =>
@@ -158,30 +166,34 @@ public partial class GplxDbContext : DbContext
             entity.Property(e => e.LanThi).HasDefaultValueSql("'1'");
             entity.Property(e => e.NgayKetLuan).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.HasOne(d => d.HoSo).WithMany(p => p.Ketquathis).HasConstraintName("ketquathi_ibfk_1");
+            entity.HasOne(d => d.HoSo).WithMany(p => p.Ketquathis)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ketquathi_ibfk_1");
 
-            entity.HasOne(d => d.KyThi).WithMany(p => p.Ketquathis).HasConstraintName("ketquathi_ibfk_2");
+            entity.HasOne(d => d.KyThi).WithMany(p => p.Ketquathis)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ketquathi_ibfk_2");
         });
 
         modelBuilder.Entity<Kythi>(entity =>
         {
             entity.HasKey(e => e.KyThiId).HasName("PRIMARY");
 
+            entity.Property(e => e.SoLuongDangKy).HasDefaultValueSql("'0'");
+            entity.Property(e => e.SoLuongToiDa).HasDefaultValueSql("'100'");
+
             entity.HasOne(d => d.MaHangNavigation).WithMany(p => p.Kythis).HasConstraintName("kythi_ibfk_1");
         });
 
-        modelBuilder.Entity<Lichthi>(entity =>
+        modelBuilder.Entity<Lichsugiayphep>(entity =>
         {
-            entity.HasKey(e => e.LichThiId).HasName("PRIMARY");
+            entity.HasKey(e => e.LichSuId).HasName("PRIMARY");
 
-            entity.HasOne(d => d.KyThi).WithMany(p => p.Lichthis).HasConstraintName("lichthi_ibfk_1");
+            entity.Property(e => e.NgayThucHien).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.HasOne(d => d.MonThi).WithMany(p => p.Lichthis).HasConstraintName("lichthi_ibfk_2");
-        });
-
-        modelBuilder.Entity<Loaivipham>(entity =>
-        {
-            entity.HasKey(e => e.LoaiViPhamId).HasName("PRIMARY");
+            entity.HasOne(d => d.GiayPhep).WithMany(p => p.Lichsugiaypheps)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("lichsugiayphep_ibfk_1");
         });
 
         modelBuilder.Entity<Monthi>(entity =>
@@ -189,16 +201,16 @@ public partial class GplxDbContext : DbContext
             entity.HasKey(e => e.MonThiId).HasName("PRIMARY");
         });
 
-        modelBuilder.Entity<Vipham>(entity =>
+        modelBuilder.Entity<Passwordresetotp>(entity =>
         {
-            entity.HasKey(e => e.ViPhamId).HasName("PRIMARY");
+            entity.HasKey(e => e.Otpid).HasName("PRIMARY");
 
-            entity.Property(e => e.ThoiGianViPham).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.TrangThai).HasDefaultValueSql("'Chưa xử lý'");
+            entity.Property(e => e.IsUsed).HasDefaultValueSql("'0'");
+            entity.Property(e => e.NgayTao).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.HasOne(d => d.GiayPhep).WithMany(p => p.Viphams).HasConstraintName("vipham_ibfk_1");
-
-            entity.HasOne(d => d.LoaiViPham).WithMany(p => p.Viphams).HasConstraintName("vipham_ibfk_2");
+            entity.HasOne(d => d.MaCanBoNavigation).WithMany(p => p.Passwordresetotps)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("passwordresetotp_ibfk_1");
         });
 
         OnModelCreatingPartial(modelBuilder);

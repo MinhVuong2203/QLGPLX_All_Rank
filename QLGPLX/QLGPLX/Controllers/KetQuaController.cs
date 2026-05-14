@@ -1,14 +1,17 @@
-﻿using Backend.DTO.KetQua;
+﻿using Backend.Data;
+using Backend.DTO.KetQua;
 using Backend.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QLGPLX.Data;
+
 
 namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "CAP_GPLX")]
     public class KetQuaController : ControllerBase
     {
         private readonly IKetQuaService _service;

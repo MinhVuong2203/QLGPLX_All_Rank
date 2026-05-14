@@ -1,5 +1,6 @@
 ﻿using Backend.DTO.Congdan;
 using Backend.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace QLGPLX.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "QUAN_LY_HO_SO")]
     public class CongDanController : ControllerBase
     {
         private readonly ICongDanService _congdanService;

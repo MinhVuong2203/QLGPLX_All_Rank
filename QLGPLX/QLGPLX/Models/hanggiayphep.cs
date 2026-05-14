@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("hanggiayphep")]
 public partial class Hanggiayphep
@@ -16,7 +16,7 @@ public partial class Hanggiayphep
     [StringLength(50)]
     public string TenHang { get; set; } = null!;
 
-    [StringLength(50)]
+    [StringLength(255)]
     public string? LoaiXe { get; set; }
 
     public int? DoTuoiToiThieu { get; set; }

@@ -2,7 +2,7 @@ using AutoMapper;
 using Backend.DTO.HoSo;
 using Backend.Repository;
 using Backend.Service.Interface;
-using QLGPLX.Models;
+using Backend.Models;
 
 namespace Backend.Service;
 

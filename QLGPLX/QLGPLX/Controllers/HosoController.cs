@@ -1,5 +1,6 @@
 using Backend.DTO.HoSo;
 using Backend.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -7,6 +8,7 @@ namespace QLGPLX.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "HO_SO")] // QL_HO_SO + DUYET_HO_SO
 public class HosoController : ControllerBase
 {
     private readonly IHosoService _hosoService;
@@ -17,6 +19,7 @@ public class HosoController : ControllerBase
     }
 
     // GET: api/Hoso
+   
     [HttpGet]
     public async Task<ActionResult<List<HosoDTO>>> GetAll()
     {
@@ -32,6 +35,7 @@ public class HosoController : ControllerBase
     }
 
     // GET: api/Hoso/5
+    //[Authorize(Policy = "HO_SO")]
     [HttpGet("{id}")]
     public async Task<ActionResult<HosoDTO>> GetById(int id)
     {
@@ -50,6 +54,7 @@ public class HosoController : ControllerBase
     }
 
     // GET: api/Hoso/public/guid
+    //[Authorize(Policy = "HO_SO")]
     [HttpGet("public/{publicId}")]
     public async Task<ActionResult<HosoDTO>> GetByPublicId(Guid publicId)
     {
@@ -68,6 +73,7 @@ public class HosoController : ControllerBase
     }
 
     // GET: api/Hoso/congdan/5
+    //[Authorize(Policy = "HO_SO")]
     [HttpGet("congdan/{maCongDan}")]
     public async Task<ActionResult<List<HosoDTO>>> GetByCongDan(int maCongDan)
     {
@@ -83,6 +89,7 @@ public class HosoController : ControllerBase
     }
 
     // GET: api/Hoso/check-exists?maCongDan=1&maHang=A1
+    //[Authorize(Policy = "HO_SO")]
     [HttpGet("check-exists")]
     public async Task<ActionResult<bool>> CheckExists([FromQuery] int maCongDan, [FromQuery] string maHang)
     {
@@ -98,6 +105,7 @@ public class HosoController : ControllerBase
     }
 
     // POST: api/Hoso
+    //[Authorize(Policy = "HO_SO")]
     [HttpPost]
     public async Task<ActionResult<HosoDTO>> Create([FromBody] CreateHosoDTO dto)
     {
@@ -120,6 +128,7 @@ public class HosoController : ControllerBase
     }
 
     // PUT: api/Hoso/5
+    [Authorize(Policy = "DUYET_HO_SO")]
     [HttpPut("{id}")]
     public async Task<ActionResult<HosoDTO>> Update(int id, [FromBody] UpdateHosoDTO dto)
     {
@@ -145,6 +154,7 @@ public class HosoController : ControllerBase
     }
 
     // DELETE: api/Hoso/5
+    //[Authorize(Policy = "HO_SO")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

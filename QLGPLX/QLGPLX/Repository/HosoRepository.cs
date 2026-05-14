@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using QLGPLX.Data;
-using QLGPLX.Models;
+using Backend.Data;
+using Backend.Models;
 
 namespace Backend.Repository;
 public class HosoRepository

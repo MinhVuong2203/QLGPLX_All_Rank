@@ -25,7 +25,7 @@ CREATE TABLE CongDan (
 CREATE TABLE HangGiayPhep (
     MaHang VARCHAR(10) PRIMARY KEY,
     TenHang VARCHAR(50) NOT NULL,
-    LoaiXe VARCHAR(50),
+    LoaiXe VARCHAR(255),
     DoTuoiToiThieu INT DEFAULT 18,
     ThoiHanNam INT,
     YeuCauThucHanh TINYINT(1) DEFAULT 1,
@@ -81,16 +81,6 @@ CREATE TABLE KyThi (
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)
 );
 
--- ================== LỊCH THI ==================
-CREATE TABLE LichThi (
-    LichThiID INT AUTO_INCREMENT PRIMARY KEY,
-    KyThiID INT,
-    MonThiID INT,
-    ThoiGian DATETIME,
-    FOREIGN KEY (KyThiID) REFERENCES KyThi(KyThiID),
-    FOREIGN KEY (MonThiID) REFERENCES MonThi(MonThiID)
-);
-
 -- ================== KẾT QUẢ ==================
 CREATE TABLE KetQuaThi (
     KetQuaID INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,7 +100,7 @@ CREATE TABLE KetQuaChiTiet (
     ChiTietID INT AUTO_INCREMENT PRIMARY KEY,
     KetQuaID INT NOT NULL,
     MonThiID INT NOT NULL,
-    Diem INT,
+    Diem INT NOT NULL DEFAULT 0,
     ThoiGianBatDau DATETIME,
     KetQua VARCHAR(20),
     GhiChu VARCHAR(255),
@@ -133,29 +123,19 @@ CREATE TABLE GiayPhep (
     FOREIGN KEY (MaCongDan) REFERENCES CongDan(MaCongDan),
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)
 );
-
--- ================== VI PHẠM ==================
-CREATE TABLE LoaiViPham (
-    LoaiViPhamID INT AUTO_INCREMENT PRIMARY KEY,
-    TenViPham VARCHAR(255),
-    DiemTru INT,
-    MucPhatTu DECIMAL(18,2),
-    MucPhatDen DECIMAL(18,2),
-    MoTa VARCHAR(500)
-);
-
-CREATE TABLE ViPham (
-    ViPhamID INT AUTO_INCREMENT PRIMARY KEY,
-    GiayPhepID INT,
-    LoaiViPhamID INT,
-    ThoiGianViPham DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DiaDiem VARCHAR(255),
-    BienKiemSoat VARCHAR(20),
-    MucPhat DECIMAL(18,2),
-    TrangThai VARCHAR(30) DEFAULT 'Chưa xử lý',
-    GhiChu VARCHAR(500),
-    FOREIGN KEY (GiayPhepID) REFERENCES GiayPhep(GiayPhepID),
-    FOREIGN KEY (LoaiViPhamID) REFERENCES LoaiViPham(LoaiViPhamID)
+-- ============= LỊCH SỬ GPLX =========== -
+CREATE TABLE LichSuGiayPhep (
+    LichSuID INT AUTO_INCREMENT PRIMARY KEY,
+    GiayPhepID INT NOT NULL,
+    LoaiThaoTac VARCHAR(30) NOT NULL, -- CAP_MOI, GIA_HAN, CAP_LAI, THU_HOI
+    SoGiayPhep VARCHAR(20) NOT NULL,
+    NgayCapCu DATE,
+    NgayHetHanCu DATE,
+    NgayCapMoi DATE,
+    NgayHetHanMoi DATE,
+    LyDo VARCHAR(255),
+    NgayThucHien DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (GiayPhepID) REFERENCES GiayPhep(GiayPhepID)
 );
 
 -- ================== CHỨC VỤ ==================
@@ -163,37 +143,61 @@ CREATE TABLE ChucVu (
     MaChucVu INT AUTO_INCREMENT PRIMARY KEY,
     TenChucVu VARCHAR(50) UNIQUE
 );
-
 INSERT INTO ChucVu (TenChucVu)
-VALUES ('Quản lý'), ('Cán bộ hồ sơ'), ('Cán bộ sát hạch'), ('Cán bộ cấp GPLX'), ('Cán bộ xử lý vi phạm');
+VALUES ('Quản lý'), ('Cán bộ hồ sơ'), ('Cán bộ sát hạch'), ('Cán bộ cấp GPLX');
 
 -- ================== CÁN BỘ ==================
 CREATE TABLE CanBo (
     MaCanBo INT AUTO_INCREMENT PRIMARY KEY,
-    public_id CHAR(36) UNIQUE,
+    public_id CHAR(36) UNIQUE NOT NULL,
     HoTen VARCHAR(100),
     MaChucVu INT,
-    Email VARCHAR(120),
+    Email VARCHAR(255) UNIQUE NOT NULL,
+    Cccd VARCHAR(12) UNIQUE NOT NULL,
     DienThoai VARCHAR(15),
     NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Username VARCHAR(100) UNIQUE,
-    Password VARCHAR(100),
     Anh3x4 VARCHAR(256),
+    Username VARCHAR(100) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
     TrangThai TINYINT(1) DEFAULT 1,
     FOREIGN KEY (MaChucVu) REFERENCES ChucVu(MaChucVu)
 );
 
--- ================== CÁN BỘ - HỒ SƠ ==================
-CREATE TABLE CanBo_HoSo (
-    MaCanBo INT,
-    HoSoID INT,
-    ThoiGian DATETIME DEFAULT CURRENT_TIMESTAMP,
-    TrangThaiDuyet VARCHAR(50),
-    PRIMARY KEY (MaCanBo, HoSoID, ThoiGian),
-    FOREIGN KEY (MaCanBo) REFERENCES CanBo(MaCanBo),
-    FOREIGN KEY (HoSoID) REFERENCES HoSo(HoSoID)
+CREATE TABLE PasswordResetOTP (
+    OTPID INT AUTO_INCREMENT PRIMARY KEY,
+    MaCanBo INT NOT NULL,
+    OTPCode VARCHAR(10) NOT NULL,
+    ExpiredAt DATETIME NOT NULL,
+    IsUsed TINYINT(1) DEFAULT 0,
+    NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MaCanBo) REFERENCES CanBo(MaCanBo)
 );
+-- Chức năng
+CREATE TABLE ChucNang (
+    MaChucNang INT AUTO_INCREMENT PRIMARY KEY,
+    TenChucNang VARCHAR(100) NOT NULL,
+    MaChucNangCode VARCHAR(100) UNIQUE NOT NULL,
+    MoTa VARCHAR(255),
+    TrangThai TINYINT(1) DEFAULT 1
+);
+INSERT INTO ChucNang (TenChucNang, MaChucNangCode, MoTa)
+VALUES
+('Quản lý cán bộ', 'QUAN_LY_CAN_BO', 'Thêm, sửa, xóa cán bộ'),
+('Quản lý hồ sơ đăng ký', 'QUAN_LY_HO_SO', 'Xem và xử lý hồ sơ đăng ký'),
+('Duyệt hồ sơ', 'DUYET_HO_SO', 'Duyệt hồ sơ đủ điều kiện thi'),
+('Quản lý kỳ thi', 'QUAN_LY_KY_THI', 'Tạo và quản lý kỳ thi sát hạch'),
+('Nhập kết quả thi', 'NHAP_KET_QUA_THI', 'Nhập kết quả sát hạch'),
+('Cấp GPLX', 'CAP_GPLX', 'Cấp giấy phép lái xe'),
+('Gia hạn GPLX', 'GIA HAN_GPLX', 'Gia hạn giấy phép lái xe'),
+('Đăng nhập', 'LOGIN', 'Đăng nhập hệ thống');
 
+CREATE TABLE PhanQuyenCanBo (
+    MaCanBo INT NOT NULL,
+    MaChucNang INT NOT NULL,
+    PRIMARY KEY (MaCanBo, MaChucNang),
+    FOREIGN KEY (MaCanBo) REFERENCES CanBo(MaCanBo),
+    FOREIGN KEY (MaChucNang) REFERENCES ChucNang(MaChucNang)
+);
 
 INSERT INTO HangGiayPhep (MaHang, TenHang, LoaiXe, DoTuoiToiThieu, ThoiHanNam, YeuCauThucHanh, MoTaChiTiet) VALUES
 ('A1', 'Mô tô 2 bánh nhỏ', 'Xe máy ≤125cc', 18, null , 1, 'Mô tô hai bánh ≤125cc hoặc ≤11kW'), 
@@ -459,7 +463,10 @@ END$$
 -- =========================================
 -- UPDATE ketquathi Đạt thì thêm giấy phép
 -- =========================================
+DROP TRIGGER IF EXISTS trg_ketquathi_update_giayphep_insert;
+
 DELIMITER $$
+
 CREATE TRIGGER trg_ketquathi_update_giayphep_insert
 AFTER UPDATE ON KetQuaThi
 FOR EACH ROW
@@ -467,15 +474,78 @@ BEGIN
     DECLARE v_maCongDan INT;
     DECLARE v_maHang VARCHAR(10);
 
-    -- Lấy thông tin hồ sơ
-    SELECT hs.MaCongDan, hs.MaHang
-    INTO v_maCongDan, v_maHang
-    FROM HoSo hs
-    WHERE hs.HoSoID = NEW.HoSoID;
+    DECLARE v_gioiTinh VARCHAR(10);
+    DECLARE v_namSinh YEAR;
 
-    -- =====================================
-    -- Từ KHÔNG ĐẠT -> ĐẠT
-    -- =====================================
+    DECLARE v_maGioiTinh CHAR(1);
+    DECLARE v_namTrungTuyen CHAR(2);
+
+    DECLARE v_random7 VARCHAR(7);
+
+    DECLARE v_soGPLX VARCHAR(20);
+
+    DECLARE v_thoiHanNam INT;
+    DECLARE v_ngayHetHan DATE;
+
+    -- Lấy thông tin công dân + hồ sơ
+    SELECT 
+        hs.MaCongDan,
+        hs.MaHang,
+        cd.GioiTinh,
+        YEAR(cd.NgaySinh)
+    INTO 
+        v_maCongDan,
+        v_maHang,
+        v_gioiTinh,
+        v_namSinh
+    FROM HoSo hs
+    INNER JOIN CongDan cd 
+        ON cd.MaCongDan = hs.MaCongDan
+    WHERE hs.HoSoID = NEW.HoSoID;
+    -- Xác định mã giới tính
+    /*
+        Thế kỷ 20:
+            Nam = 0
+            Nữ = 1
+        Thế kỷ 21:
+            Nam = 2
+            Nữ = 3
+    */
+    IF v_namSinh BETWEEN 1900 AND 1999 THEN
+
+        IF LOWER(v_gioiTinh) = 'nam' THEN
+            SET v_maGioiTinh = '0';
+        ELSE
+            SET v_maGioiTinh = '1';
+        END IF;
+    ELSE
+        IF LOWER(v_gioiTinh) = 'nam' THEN
+            SET v_maGioiTinh = '2';
+        ELSE
+            SET v_maGioiTinh = '3';
+        END IF;
+
+    END IF;
+    -- Năm trúng tuyển
+    -- Ví dụ 2026 => 26
+
+    SET v_namTrungTuyen = RIGHT(YEAR(CURDATE()), 2);
+
+    SET v_random7 = LPAD(
+        FLOOR(RAND() * 10000000),
+        7,
+        '0'
+    );
+
+
+    SET v_soGPLX = CONCAT(
+        '89',
+        v_maGioiTinh,
+        v_namTrungTuyen,
+        v_random7
+    );
+
+
     IF OLD.KetQuaTongHop <> 'Đạt'
        AND NEW.KetQuaTongHop = 'Đạt' THEN
 
@@ -485,6 +555,30 @@ BEGIN
             WHERE gp.MaCongDan = v_maCongDan
               AND gp.MaHang = v_maHang
         ) THEN
+
+            -- Lấy thời hạn GPLX
+ 
+            SELECT h.ThoiHanNam
+            INTO v_thoiHanNam
+            FROM HangGiayPhep h
+            WHERE h.MaHang = v_maHang;
+
+            -- Nếu không thời hạn => NULL
+
+            IF v_thoiHanNam IS NULL THEN
+
+                SET v_ngayHetHan = NULL;
+
+            ELSE
+
+                SET v_ngayHetHan = DATE_ADD(
+                    CURDATE(),
+                    INTERVAL v_thoiHanNam YEAR
+                );
+
+            END IF;
+
+            -- Insert giấy phép
 
             INSERT INTO GiayPhep (
                 MaCongDan,
@@ -497,31 +591,24 @@ BEGIN
             VALUES (
                 v_maCongDan,
                 v_maHang,
-                CONCAT(
-                    'GPLX-',
-                    v_maCongDan,
-                    '-',
-                    UNIX_TIMESTAMP()
-                ),
+                v_soGPLX,
                 CURDATE(),
-                DATE_ADD(CURDATE(), INTERVAL 10 YEAR),
+                v_ngayHetHan,
                 'Chờ duyệt'
             );
 
         END IF;
 
     END IF;
-
-    -- =====================================
+    
     -- Từ ĐẠT -> KHÔNG ĐẠT
-    -- =====================================
+
     IF OLD.KetQuaTongHop = 'Đạt'
        AND NEW.KetQuaTongHop <> 'Đạt' THEN
 
         DELETE FROM GiayPhep
         WHERE MaCongDan = v_maCongDan
           AND MaHang = v_maHang;
-
     END IF;
 
 END$$

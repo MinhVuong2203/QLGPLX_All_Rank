@@ -5,7 +5,7 @@ using Backend.Service.Interface;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.EntityFrameworkCore;
-using QLGPLX.Models;
+using Backend.Models;
 namespace Backend.Service;
 public class CongdanService : ICongDanService
 {

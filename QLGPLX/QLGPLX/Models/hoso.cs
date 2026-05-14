@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("hoso")]
 [Index("MaCongDan", Name = "MaCongDan")]
@@ -34,9 +34,6 @@ public partial class Hoso
 
     [StringLength(255)]
     public string? GhiChu { get; set; }
-
-    [InverseProperty("HoSo")]
-    public virtual ICollection<CanboHoso> CanboHosos { get; set; } = new List<CanboHoso>();
 
     [InverseProperty("HoSo")]
     public virtual ICollection<Ketquathi> Ketquathis { get; set; } = new List<Ketquathi>();

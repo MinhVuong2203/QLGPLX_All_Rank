@@ -2,7 +2,7 @@
 using Backend.DTO.Congdan;
 using Backend.DTO.HoSo;
 using Backend.DTO.KyThi;
-using QLGPLX.Models;
+using Backend.Models;
 
 namespace QLGPLX.Mapping
 {
