@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("kythi")]
 [Index("MaHang", Name = "MaHang")]
@@ -31,15 +31,12 @@ public partial class Kythi
     [StringLength(10)]
     public string? MaHang { get; set; }
 
-    public int SoLuongToiDa { get; set; }
+    public int? SoLuongToiDa { get; set; }
 
-    public int SoLuongDangKy { get; set; }
+    public int? SoLuongDangKy { get; set; }
 
     [InverseProperty("KyThi")]
     public virtual ICollection<Ketquathi> Ketquathis { get; set; } = new List<Ketquathi>();
-
-    [InverseProperty("KyThi")]
-    public virtual ICollection<Lichthi> Lichthis { get; set; } = new List<Lichthi>();
 
     [ForeignKey("MaHang")]
     [InverseProperty("Kythis")]

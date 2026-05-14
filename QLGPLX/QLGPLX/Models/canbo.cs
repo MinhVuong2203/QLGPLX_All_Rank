@@ -4,9 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("canbo")]
+[Index("Cccd", Name = "Cccd", IsUnique = true)]
+[Index("Email", Name = "Email", IsUnique = true)]
 [Index("MaChucVu", Name = "MaChucVu")]
 [Index("Username", Name = "Username", IsUnique = true)]
 [Index("PublicId", Name = "public_id", IsUnique = true)]
@@ -16,15 +18,17 @@ public partial class Canbo
     public int MaCanBo { get; set; }
 
     [Column("public_id")]
-    public Guid? PublicId { get; set; }
+    public Guid PublicId { get; set; }
 
     [StringLength(100)]
     public string? HoTen { get; set; }
 
     public int? MaChucVu { get; set; }
 
-    [StringLength(120)]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
+
+    [StringLength(12)]
+    public string Cccd { get; set; } = null!;
 
     [StringLength(15)]
     public string? DienThoai { get; set; }
@@ -32,21 +36,25 @@ public partial class Canbo
     [Column(TypeName = "datetime")]
     public DateTime? NgayTao { get; set; }
 
-    [StringLength(100)]
-    public string? Username { get; set; }
-
-    [StringLength(100)]
-    public string? Password { get; set; }
-
     [StringLength(256)]
     public string? Anh3x4 { get; set; }
 
-    public bool? TrangThai { get; set; }
+    [StringLength(100)]
+    public string Username { get; set; } = null!;
 
-    [InverseProperty("MaCanBoNavigation")]
-    public virtual ICollection<CanboHoso> CanboHosos { get; set; } = new List<CanboHoso>();
+    [StringLength(255)]
+    public string PasswordHash { get; set; } = null!;
+
+    public bool? TrangThai { get; set; }
 
     [ForeignKey("MaChucVu")]
     [InverseProperty("Canbos")]
     public virtual Chucvu? MaChucVuNavigation { get; set; }
+
+    [InverseProperty("MaCanBoNavigation")]
+    public virtual ICollection<Passwordresetotp> Passwordresetotps { get; set; } = new List<Passwordresetotp>();
+
+    [ForeignKey("MaCanBo")]
+    [InverseProperty("MaCanBos")]
+    public virtual ICollection<Chucnang> MaChucNangs { get; set; } = new List<Chucnang>();
 }

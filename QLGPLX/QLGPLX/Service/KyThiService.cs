@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Backend.DTO.KyThi;
 using Backend.Service.Interface;
-using QLGPLX.Models;
+using Backend.Models;
 using Backend.Repository;
 
 namespace Backend.Service

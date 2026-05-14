@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("monthi")]
 public partial class Monthi
@@ -24,7 +24,4 @@ public partial class Monthi
 
     [InverseProperty("MonThi")]
     public virtual ICollection<Ketquachitiet> Ketquachitiets { get; set; } = new List<Ketquachitiet>();
-
-    [InverseProperty("MonThi")]
-    public virtual ICollection<Lichthi> Lichthis { get; set; } = new List<Lichthi>();
 }

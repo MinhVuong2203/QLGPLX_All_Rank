@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QLGPLX.Models;
+namespace Backend.Models;
 
 [Table("giayphep")]
 [Index("MaCongDan", Name = "MaCongDan")]
@@ -36,6 +36,9 @@ public partial class Giayphep
     [StringLength(255)]
     public string? GhiChu { get; set; }
 
+    [InverseProperty("GiayPhep")]
+    public virtual ICollection<Lichsugiayphep> Lichsugiaypheps { get; set; } = new List<Lichsugiayphep>();
+
     [ForeignKey("MaCongDan")]
     [InverseProperty("Giaypheps")]
     public virtual Congdan? MaCongDanNavigation { get; set; }
@@ -43,7 +46,4 @@ public partial class Giayphep
     [ForeignKey("MaHang")]
     [InverseProperty("Giaypheps")]
     public virtual Hanggiayphep? MaHangNavigation { get; set; }
-
-    [InverseProperty("GiayPhep")]
-    public virtual ICollection<Vipham> Viphams { get; set; } = new List<Vipham>();
 }
