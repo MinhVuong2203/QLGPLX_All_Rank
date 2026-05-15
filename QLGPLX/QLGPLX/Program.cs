@@ -165,14 +165,11 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 //Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Port deloy
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
