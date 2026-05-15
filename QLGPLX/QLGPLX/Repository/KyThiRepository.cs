@@ -84,6 +84,15 @@ namespace Backend.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<Hoso>> GetHoSoByIdsAsync(List<int> hoSoIds)
+        {
+            return await _context.Hosos
+                .Where(h => hoSoIds.Contains(h.HoSoId))
+                .Include(h => h.MaCongDanNavigation)
+                .Include(h => h.MaHangNavigation)
+                .ToListAsync();
+        }
+
         public async Task<bool> ThemHoSoVaoKyThiAsync(int kyThiId, List<int> danhSachHoSoId)
         {
             var kyThi = await GetByIdAsync(kyThiId);
@@ -116,6 +125,17 @@ namespace Backend.Repository
 
         public async Task<bool> XoaHoSoKhoiKyThiAsync(int kyThiId, int hoSoId)
         {
+            var daCoGiayPhep = await _context.Hosos
+                .Where(h => h.HoSoId == hoSoId)
+                .AnyAsync(h => _context.Giaypheps.Any(g =>
+                    g.MaCongDan == h.MaCongDan &&
+                    g.MaHang == h.MaHang));
+
+            if (daCoGiayPhep)
+            {
+                throw new InvalidOperationException("Không thể xóa hồ sơ khỏi kỳ thi vì công dân đã được cấp giấy phép lái xe.");
+            }
+
             var ketQua = await _context.Ketquathis
                 .FirstOrDefaultAsync(k => k.KyThiId == kyThiId && k.HoSoId == hoSoId);
 

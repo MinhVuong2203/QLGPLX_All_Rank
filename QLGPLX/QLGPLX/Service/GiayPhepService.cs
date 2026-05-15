@@ -34,6 +34,21 @@ namespace Backend.Service
             return await _repository.UpdateGiayPhepAsync(id, dto);
         }
 
+        public async Task<List<LichSuGiayPhepDTO>> GetLichSuAsync(int giayPhepId)
+        {
+            return await _repository.GetLichSuAsync(giayPhepId);
+        }
+
+        public async Task<bool> DuyetGiayPhepAsync(int id, GiayPhepActionDTO dto)
+        {
+            return await _repository.DuyetGiayPhepAsync(id, dto);
+        }
+
+        public async Task<bool> CapLaiGiayPhepAsync(int id, GiayPhepActionDTO dto)
+        {
+            return await _repository.CapLaiGiayPhepAsync(id, dto);
+        }
+
 
         public async Task<object> GetStatisticsAsync()
         {

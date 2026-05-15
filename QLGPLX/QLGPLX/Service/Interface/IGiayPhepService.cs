@@ -9,6 +9,9 @@ namespace Backend.Service.Interface
         Task<GiayPhepDTO?> GetGiayPhepByIdAsync(int id);
         Task<Giayphep> CreateGiayPhepAsync(GiayPhepCreateDTO dto);
         Task<bool> UpdateGiayPhepAsync(int id, GiayPhepUpdateDTO dto);
+        Task<List<LichSuGiayPhepDTO>> GetLichSuAsync(int giayPhepId);
+        Task<bool> DuyetGiayPhepAsync(int id, GiayPhepActionDTO dto);
+        Task<bool> CapLaiGiayPhepAsync(int id, GiayPhepActionDTO dto);
         Task<object> GetStatisticsAsync();
     }
 }

@@ -10,10 +10,17 @@ namespace Backend.Service.Implement
     public class KetQuaService : IKetQuaService
     {
         private readonly KetQuaRepository _ketQuaRepo;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<KetQuaService> _logger;
 
-        public KetQuaService(KetQuaRepository ketQuaRepo)
+        public KetQuaService(
+            KetQuaRepository ketQuaRepo,
+            IEmailService emailService,
+            ILogger<KetQuaService> logger)
         {
             _ketQuaRepo = ketQuaRepo;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<List<HoSoKetQuaDTO>> GetHoSoKetQuaByKyThiAsync(int kyThiId)
@@ -205,6 +212,8 @@ namespace Backend.Service.Implement
 
             await _ketQuaRepo.SaveChangesAsync();
 
+            await SendKetQuaEmailAsync(ketQua);
+
             return await GetKetQuaByIdAsync(
                 ketQua.KetQuaId);
         }
@@ -269,6 +278,8 @@ namespace Backend.Service.Implement
 
             await _ketQuaRepo.SaveChangesAsync();
 
+            await SendKetQuaEmailAsync(ketQua);
+
             return await GetKetQuaByIdAsync(
                 ketQuaId);
         }
@@ -327,6 +338,28 @@ namespace Backend.Service.Implement
                 ketQua);
 
             await _ketQuaRepo.SaveChangesAsync();
+        }
+
+        private async Task SendKetQuaEmailAsync(Ketquathi ketQua)
+        {
+            try
+            {
+                var hoSo = await _ketQuaRepo.GetHoSoByIdAsync(ketQua.HoSoId);
+                if (hoSo?.MaCongDanNavigation == null)
+                    return;
+
+                var kyThi = await _ketQuaRepo.GetKyThiByIdAsync(ketQua.KyThiId);
+
+                await _emailService.SendKetQuaAsync(
+                    hoSo.MaCongDanNavigation,
+                    hoSo,
+                    kyThi,
+                    ketQua);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Khong gui duoc email ket qua thi cho ho so {HoSoId}", ketQua.HoSoId);
+            }
         }
 
 

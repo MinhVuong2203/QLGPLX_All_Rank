@@ -13,11 +13,13 @@
         public DateOnly? NgayHetHan { get; set; }
         public int? SoDiem { get; set; }
         public string? TrangThai { get; set; }
+        public string? TrangThaiHienThi { get; set; }
         public string? GhiChu { get; set; }
         public string? DiaChi { get; set; }
         public DateOnly? NgaySinh { get; set; }
         public string? Anh3x4 { get; set; }
         public string? LoaiXe { get; set; }
+        public string? QrCodeDataUrl { get; set; }
     }
 
     public class GiayPhepCreateDTO
@@ -37,6 +39,25 @@
         public string? TrangThai { get; set; }
         public int? SoDiem { get; set; }
         public string? GhiChu { get; set; }
+    }
+
+    public class GiayPhepActionDTO
+    {
+        public string? GhiChu { get; set; }
+    }
+
+    public class LichSuGiayPhepDTO
+    {
+        public int LichSuId { get; set; }
+        public int GiayPhepId { get; set; }
+        public string LoaiThaoTac { get; set; } = string.Empty;
+        public string SoGiayPhep { get; set; } = string.Empty;
+        public DateOnly? NgayCapCu { get; set; }
+        public DateOnly? NgayHetHanCu { get; set; }
+        public DateOnly? NgayCapMoi { get; set; }
+        public DateOnly? NgayHetHanMoi { get; set; }
+        public string? LyDo { get; set; }
+        public DateTime? NgayThucHien { get; set; }
     }
 
     public class GiayPhepSearchDTO
