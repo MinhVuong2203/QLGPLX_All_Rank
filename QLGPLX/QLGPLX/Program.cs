@@ -171,9 +171,6 @@ var app = builder.Build();
 //    app.UseSwaggerUI();
 //}
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 // Port deloy
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://0.0.0.0:{port}");
