@@ -84,6 +84,9 @@ builder.Services.Scan(scan => scan
 builder.Services.Configure<CloudinarySettings>(
     builder.Configuration.GetSection("Cloudinary"));
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("Email"));
+
 builder.Services.AddSingleton(provider =>
 {
     var config = provider.GetRequiredService<IOptions<CloudinarySettings>>().Value;

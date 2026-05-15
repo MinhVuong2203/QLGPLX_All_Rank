@@ -9,11 +9,19 @@ namespace Backend.Service
     public class KyThiService : IKyThiService
     {
         private readonly KyThiRepository _repository;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<KyThiService> _logger;
         private readonly IMapper _mapper;
 
-        public KyThiService(KyThiRepository repository, IMapper mapper)
+        public KyThiService(
+            KyThiRepository repository,
+            IEmailService emailService,
+            ILogger<KyThiService> logger,
+            IMapper mapper)
         {
             _repository = repository;
+            _emailService = emailService;
+            _logger = logger;
             _mapper = mapper;
         }
 
@@ -132,12 +140,47 @@ namespace Backend.Service
 
         public async Task<bool> ThemHoSoVaoKyThiAsync(ThemHoSoVaoKyThiDTO dto)
         {
-            return await _repository.ThemHoSoVaoKyThiAsync(dto.KyThiID, dto.DanhSachHoSoID);
+            var success = await _repository.ThemHoSoVaoKyThiAsync(dto.KyThiID, dto.DanhSachHoSoID);
+            if (!success)
+                return false;
+
+            var kyThi = await _repository.GetByIdAsync(dto.KyThiID);
+            if (kyThi == null)
+                return true;
+
+            var hoSos = await _repository.GetHoSoByIdsAsync(dto.DanhSachHoSoID);
+
+            foreach (var hoSo in hoSos)
+            {
+                if (hoSo.MaCongDanNavigation == null)
+                    continue;
+
+                await TrySendEmailAsync(
+                    () => _emailService.SendHoSoAddedToKyThiAsync(
+                        hoSo.MaCongDanNavigation,
+                        hoSo,
+                        kyThi),
+                    hoSo.MaCongDanNavigation?.Email);
+            }
+
+            return true;
         }
 
         public async Task<bool> XoaHoSoKhoiKyThiAsync(int kyThiId, int hoSoId)
         {
             return await _repository.XoaHoSoKhoiKyThiAsync(kyThiId, hoSoId);
+        }
+
+        private async Task TrySendEmailAsync(Func<Task> sendEmail, string? email)
+        {
+            try
+            {
+                await sendEmail();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Khong gui duoc email ky thi den {Email}", email);
+            }
         }
     }
 }

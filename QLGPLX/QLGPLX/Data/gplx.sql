@@ -118,7 +118,8 @@ CREATE TABLE GiayPhep (
     NgayCap DATE,
     NgayHetHan DATE,
     SoDiem INT DEFAULT 12,
-    TrangThai VARCHAR(30) DEFAULT 'Còn hiệu lực', -- Chờ duyệt, còn hiệu lực, hết hạn, bị thu hồi
+    TrangThai VARCHAR(30) DEFAULT 'Còn hiệu lực', -- Chờ duyệt, còn hiệu lực, 
+    -- hết hạn, bị thu hồi sẽ do ứng dụng tính toán
     GhiChu VARCHAR(255),
     FOREIGN KEY (MaCongDan) REFERENCES CongDan(MaCongDan),
     FOREIGN KEY (MaHang) REFERENCES HangGiayPhep(MaHang)

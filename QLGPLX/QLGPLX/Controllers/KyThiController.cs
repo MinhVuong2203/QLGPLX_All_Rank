@@ -204,6 +204,10 @@ namespace Backend.Controllers
 
                 return Ok(new { message = "Xóa hồ sơ khỏi kỳ thi thành công" });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi xóa hồ sơ khỏi kỳ thi", error = ex.Message });

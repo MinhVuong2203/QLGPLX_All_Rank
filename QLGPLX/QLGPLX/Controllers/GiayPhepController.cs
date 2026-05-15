@@ -56,6 +56,50 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        [HttpGet("{id}/lich-su")]
+        public async Task<IActionResult> GetLichSu(int id)
+        {
+            var result = await _service.GetLichSuAsync(id);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/duyet")]
+        public async Task<IActionResult> DuyetGiayPhep(int id, GiayPhepActionDTO dto)
+        {
+            try
+            {
+                var updated = await _service.DuyetGiayPhepAsync(id, dto);
+
+                if (!updated)
+                    return NotFound();
+
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/cap-lai")]
+        public async Task<IActionResult> CapLaiGiayPhep(int id, GiayPhepActionDTO dto)
+        {
+            try
+            {
+                var updated = await _service.CapLaiGiayPhepAsync(id, dto);
+
+                if (!updated)
+                    return NotFound();
+
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("statistics")]
         public async Task<IActionResult> GetStatistics()
         {

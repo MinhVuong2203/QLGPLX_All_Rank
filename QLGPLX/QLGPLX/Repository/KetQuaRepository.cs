@@ -103,12 +103,15 @@ namespace Backend.Repository
 
         public async Task<Kythi> GetKyThiByIdAsync(int kyThiId)
         {
-            return await _context.Kythis.FindAsync(kyThiId);
+            return await _context.Kythis
+                .Include(k => k.MaHangNavigation)
+                .FirstOrDefaultAsync(k => k.KyThiId == kyThiId);
         }
 
         public async Task<Hoso> GetHoSoByIdAsync(int hoSoId)
         {
             return await _context.Hosos
+                .Include(h => h.MaCongDanNavigation)
                 .Include(h => h.MaHangNavigation)
                 .FirstOrDefaultAsync(h => h.HoSoId == hoSoId);
         }

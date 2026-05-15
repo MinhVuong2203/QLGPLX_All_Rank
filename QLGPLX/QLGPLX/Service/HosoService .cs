@@ -11,17 +11,23 @@ public class HosoService : IHosoService
     private readonly HosoRepository _hosoRepository;
     private readonly CongdanRepository _congdanRepository;
     private readonly HangGiayPhepRepository _hangRepository;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<HosoService> _logger;
     private readonly IMapper _mapper;
 
     public HosoService(
         HosoRepository hosoRepository,
         CongdanRepository congdanRepository,
         HangGiayPhepRepository hangRepository,
+        IEmailService emailService,
+        ILogger<HosoService> logger,
         IMapper mapper)
     {
         _hosoRepository = hosoRepository;
         _congdanRepository = congdanRepository;
         _hangRepository = hangRepository;
+        _emailService = emailService;
+        _logger = logger;
         _mapper = mapper;
     }
 
@@ -75,6 +81,10 @@ public class HosoService : IHosoService
         var created = await _hosoRepository.CreateAsync(hoso);
         var result = await _hosoRepository.GetByIdAsync(created.HoSoId);
 
+        await TrySendEmailAsync(
+            () => _emailService.SendHoSoCreatedAsync(congdan, result ?? created),
+            congdan.Email);
+
         return _mapper.Map<HosoDTO>(result);
     }
 
@@ -117,5 +127,17 @@ public class HosoService : IHosoService
     public async Task<bool> ExistsByMaCongDanAndMaHangAsync(int maCongDan, string maHang)
     {
         return await _hosoRepository.ExistsByMaCongDanAndMaHangAsync(maCongDan, maHang);
+    }
+
+    private async Task TrySendEmailAsync(Func<Task> sendEmail, string? email)
+    {
+        try
+        {
+            await sendEmail();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Khong gui duoc email ho so den {Email}", email);
+        }
     }
 }
