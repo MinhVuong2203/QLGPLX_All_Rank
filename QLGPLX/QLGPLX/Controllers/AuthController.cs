@@ -45,6 +45,50 @@ namespace Backend.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _authService.ForgotPasswordAsync(dto);
+
+            return Ok(new
+            {
+                message = "Nếu email tồn tại trong hệ thống, mã OTP đã được gửi và có hiệu lực trong 10 phút"
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _authService.ResetPasswordAsync(dto);
+
+                return Ok(new
+                {
+                    message = "Đặt lại mật khẩu thành công"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> Me()

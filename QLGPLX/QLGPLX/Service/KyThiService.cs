@@ -75,7 +75,8 @@ namespace Backend.Service
             var kyThi = await _repository.GetByIdAsync(id);
             if (kyThi == null) return null;
 
-            _mapper.Map(updateDto, kyThi);
+            ApplyUpdateByStatus(kyThi, updateDto);
+
             var updated = await _repository.UpdateAsync(kyThi);
 
             var dto = _mapper.Map<KyThiDTO>(updated);
@@ -181,6 +182,85 @@ namespace Backend.Service
             {
                 _logger.LogError(ex, "Khong gui duoc email ky thi den {Email}", email);
             }
+        }
+
+        private static void ApplyUpdateByStatus(Kythi kyThi, UpdateKyThiDTO updateDto)
+        {
+            var status = GetTrangThai(kyThi);
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (status == "Đã kết thúc")
+            {
+                throw new InvalidOperationException("Kỳ thi đã kết thúc, không thể chỉnh sửa");
+            }
+
+            if (status == "Đang diễn ra")
+            {
+                if (!StringEquals(updateDto.TenKyThi, kyThi.TenKyThi))
+                    throw new InvalidOperationException("Kỳ thi đang diễn ra không được đổi tên kỳ thi");
+
+                if (updateDto.NgayBatDau != kyThi.NgayBatDau)
+                    throw new InvalidOperationException("Kỳ thi đang diễn ra không được đổi ngày bắt đầu");
+
+                if (!StringEquals(updateDto.MaHang, kyThi.MaHang))
+                    throw new InvalidOperationException("Kỳ thi đang diễn ra không được đổi hạng GPLX");
+
+                if (updateDto.NgayKetThuc < today)
+                    throw new InvalidOperationException("Ngày kết thúc phải lớn hơn hoặc bằng ngày hiện tại");
+
+                var soLuongDangKy = kyThi.SoLuongDangKy ?? 0;
+                if (updateDto.SoLuongToiDa <= soLuongDangKy)
+                    throw new InvalidOperationException("Số lượng tối đa phải lớn hơn số lượng đã đăng ký");
+
+                kyThi.NgayKetThuc = updateDto.NgayKetThuc;
+                kyThi.SoLuongToiDa = updateDto.SoLuongToiDa;
+                kyThi.DiaDiem = updateDto.DiaDiem?.Trim();
+                return;
+            }
+
+            ValidateUpcomingUpdate(updateDto, today);
+
+            kyThi.TenKyThi = updateDto.TenKyThi?.Trim();
+            kyThi.NgayBatDau = updateDto.NgayBatDau;
+            kyThi.NgayKetThuc = updateDto.NgayKetThuc;
+            kyThi.DiaDiem = updateDto.DiaDiem?.Trim();
+            kyThi.MaHang = updateDto.MaHang?.Trim();
+            kyThi.SoLuongToiDa = updateDto.SoLuongToiDa;
+        }
+
+        private static void ValidateUpcomingUpdate(UpdateKyThiDTO updateDto, DateOnly today)
+        {
+            if (string.IsNullOrWhiteSpace(updateDto.TenKyThi))
+                throw new InvalidOperationException("Tên kỳ thi không được để trống");
+
+            if (updateDto.TenKyThi.Length > 150)
+                throw new InvalidOperationException("Tên kỳ thi tối đa 150 ký tự");
+
+            if (string.IsNullOrWhiteSpace(updateDto.MaHang))
+                throw new InvalidOperationException("Hạng GPLX không được để trống");
+
+            if (updateDto.NgayBatDau < today)
+                throw new InvalidOperationException("Ngày bắt đầu không hợp lệ");
+
+            if (updateDto.NgayKetThuc < updateDto.NgayBatDau)
+                throw new InvalidOperationException("Ngày kết thúc phải sau ngày bắt đầu");
+
+            if (updateDto.SoLuongToiDa < 1)
+                throw new InvalidOperationException("Số lượng phải lớn hơn 0");
+        }
+
+        private static string GetTrangThai(Kythi kyThi)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (kyThi.NgayBatDau > today) return "Sắp diễn ra";
+            if (kyThi.NgayKetThuc < today) return "Đã kết thúc";
+            return "Đang diễn ra";
+        }
+
+        private static bool StringEquals(string? left, string? right)
+        {
+            return string.Equals(left?.Trim(), right?.Trim(), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

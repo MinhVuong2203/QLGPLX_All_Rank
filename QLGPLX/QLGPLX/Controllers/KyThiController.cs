@@ -98,6 +98,10 @@ namespace Backend.Controllers
 
                 return Ok(result);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi cập nhật kỳ thi", error = ex.Message });
