@@ -212,7 +212,7 @@ namespace Backend.Service.Implement
 
             await _ketQuaRepo.SaveChangesAsync();
 
-            await SendKetQuaEmailAsync(ketQua);
+            await QueueKetQuaEmailAsync(ketQua);
 
             return await GetKetQuaByIdAsync(
                 ketQua.KetQuaId);
@@ -278,7 +278,7 @@ namespace Backend.Service.Implement
 
             await _ketQuaRepo.SaveChangesAsync();
 
-            await SendKetQuaEmailAsync(ketQua);
+            await QueueKetQuaEmailAsync(ketQua);
 
             return await GetKetQuaByIdAsync(
                 ketQuaId);
@@ -340,16 +340,21 @@ namespace Backend.Service.Implement
             await _ketQuaRepo.SaveChangesAsync();
         }
 
-        private async Task SendKetQuaEmailAsync(Ketquathi ketQua)
+        private async Task QueueKetQuaEmailAsync(Ketquathi ketQua)
+        {
+            var hoSo = await _ketQuaRepo.GetHoSoByIdAsync(ketQua.HoSoId);
+            if (hoSo?.MaCongDanNavigation == null)
+                return;
+
+            var kyThi = await _ketQuaRepo.GetKyThiByIdAsync(ketQua.KyThiId);
+
+            _ = TrySendKetQuaEmailAsync(hoSo, kyThi, ketQua);
+        }
+
+        private async Task TrySendKetQuaEmailAsync(Hoso hoSo, Kythi? kyThi, Ketquathi ketQua)
         {
             try
             {
-                var hoSo = await _ketQuaRepo.GetHoSoByIdAsync(ketQua.HoSoId);
-                if (hoSo?.MaCongDanNavigation == null)
-                    return;
-
-                var kyThi = await _ketQuaRepo.GetKyThiByIdAsync(ketQua.KyThiId);
-
                 await _emailService.SendKetQuaAsync(
                     hoSo.MaCongDanNavigation,
                     hoSo,

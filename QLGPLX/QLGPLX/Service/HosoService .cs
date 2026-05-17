@@ -81,7 +81,7 @@ public class HosoService : IHosoService
         var created = await _hosoRepository.CreateAsync(hoso);
         var result = await _hosoRepository.GetByIdAsync(created.HoSoId);
 
-        await TrySendEmailAsync(
+        _ = TrySendEmailAsync(
             () => _emailService.SendHoSoCreatedAsync(congdan, result ?? created),
             congdan.Email);
 
