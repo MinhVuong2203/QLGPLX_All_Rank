@@ -54,12 +54,22 @@ namespace Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _authService.ForgotPasswordAsync(dto);
-
-            return Ok(new
+            try
             {
-                message = "Nếu email tồn tại trong hệ thống, mã OTP đã được gửi và có hiệu lực trong 10 phút"
-            });
+                await _authService.ForgotPasswordAsync(dto);
+
+                return Ok(new
+                {
+                    message = "Mã OTP đã được gửi và có hiệu lực trong 10 phút"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         [AllowAnonymous]

@@ -42,6 +42,15 @@ namespace Backend.Repository
                 .FirstOrDefaultAsync(cb => cb.Email == email);
         }
 
+        public async Task<Canbo?> GetByEmailAndCccdAsync(string email, string cccd)
+        {
+            email = email.Trim();
+            cccd = cccd.Trim();
+
+            return await _context.Canbos
+                .FirstOrDefaultAsync(cb => cb.Email == email && cb.Cccd == cccd);
+        }
+
         public async Task InvalidatePasswordResetOtpsAsync(int maCanBo)
         {
             var otps = await _context.Passwordresetotps
