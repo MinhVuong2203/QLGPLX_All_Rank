@@ -73,7 +73,7 @@ namespace Backend.DTO.KyThi
     // =========================
     // UPDATE DTO
     // =========================
-    public class UpdateKyThiDTO : IValidatableObject
+    public class UpdateKyThiDTO
     {
         [Required(ErrorMessage = "Tên kỳ thi không được để trống")]
         [MaxLength(150, ErrorMessage = "Tên kỳ thi tối đa 150 ký tự")]
@@ -95,25 +95,6 @@ namespace Backend.DTO.KyThi
         [Range(1, int.MaxValue, ErrorMessage = "Phải lớn hơn 0")]
         public int? SoLuongToiDa { get; set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            var today = DateOnly.FromDateTime(DateTime.Today);
-            if (NgayBatDau.HasValue && NgayKetThuc.HasValue)
-            {
-                if (NgayKetThuc < NgayBatDau)
-                {
-                    yield return new ValidationResult(
-                        "Ngày kết thúc phải sau ngày bắt đầu",
-                        new[] { nameof(NgayKetThuc) });
-                }
-            }
-            if (NgayBatDau < today)
-            {
-                yield return new ValidationResult(
-                    "Ngày bắt đầu không hợp lệ",
-                    new[] { nameof(NgayBatDau) });
-            }
-        }
     }
 
     // =========================

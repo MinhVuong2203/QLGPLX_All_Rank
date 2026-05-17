@@ -33,5 +33,47 @@ namespace Backend.Repository
                 .Include(cb => cb.MaChucNangs)
                 .FirstOrDefaultAsync(cb => cb.PublicId == publicId);
         }
+
+        public async Task<Canbo?> GetByEmailAsync(string email)
+        {
+            email = email.Trim();
+
+            return await _context.Canbos
+                .FirstOrDefaultAsync(cb => cb.Email == email);
+        }
+
+        public async Task InvalidatePasswordResetOtpsAsync(int maCanBo)
+        {
+            var otps = await _context.Passwordresetotps
+                .Where(otp => otp.MaCanBo == maCanBo && otp.IsUsed != true)
+                .ToListAsync();
+
+            foreach (var otp in otps)
+            {
+                otp.IsUsed = true;
+            }
+        }
+
+        public async Task CreatePasswordResetOtpAsync(Passwordresetotp otp)
+        {
+            await _context.Passwordresetotps.AddAsync(otp);
+        }
+
+        public async Task<Passwordresetotp?> GetValidPasswordResetOtpAsync(int maCanBo, string otpCode)
+        {
+            return await _context.Passwordresetotps
+                .Where(otp =>
+                    otp.MaCanBo == maCanBo &&
+                    otp.Otpcode == otpCode &&
+                    otp.IsUsed != true &&
+                    otp.ExpiredAt >= DateTime.Now)
+                .OrderByDescending(otp => otp.NgayTao)
+                .FirstOrDefaultAsync();
+        }
+
+        public Task SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
+        }
     }
 }

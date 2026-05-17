@@ -76,6 +76,23 @@ public class EmailService : IEmailService
         return SendAsync(congDan.Email, subject, body);
     }
 
+    public Task SendPasswordResetOtpAsync(Canbo canBo, string otpCode, DateTime expiredAt)
+    {
+        var subject = "Ma OTP dat lai mat khau GPLX";
+        var body = BuildLayout(
+            "Dat lai mat khau",
+            $"Xin chao {Encode(canBo.HoTen)},",
+            new[]
+            {
+                ("Ma OTP", otpCode),
+                ("Thoi han", expiredAt.ToString("dd/MM/yyyy HH:mm")),
+                ("Hieu luc", "10 phut")
+            },
+            "Neu ban khong yeu cau dat lai mat khau, vui long bo qua email nay.");
+
+        return SendAsync(canBo.Email, subject, body);
+    }
+
     private async Task SendAsync(string? toEmail, string subject, string htmlBody)
     {
         if (string.IsNullOrWhiteSpace(toEmail))

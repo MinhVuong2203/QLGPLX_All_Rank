@@ -1,9 +1,11 @@
 ﻿using Backend.DTO.Auth;
+using Backend.Models;
 using Backend.Repository;
 using Backend.Service.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Backend.Service
@@ -12,14 +14,20 @@ namespace Backend.Service
     {
         private readonly AuthRepository _authRepository;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             AuthRepository authRepository,
-            IConfiguration configuration
+            IConfiguration configuration,
+            IEmailService emailService,
+            ILogger<AuthService> logger
         )
         {
             _authRepository = authRepository;
             _configuration = configuration;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginDto dto)
@@ -96,6 +104,64 @@ namespace Backend.Service
                 TenChucVu = canBo.MaChucVuNavigation?.TenChucVu,
                 Quyen = quyen
             };
+        }
+
+        public async Task ForgotPasswordAsync(ForgotPasswordDto dto)
+        {
+            var canBo = await _authRepository.GetByEmailAsync(dto.Email);
+
+            if (canBo == null || canBo.TrangThai != true)
+            {
+                return;
+            }
+
+            var otpCode = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+            var expiredAt = DateTime.Now.AddMinutes(10);
+
+            await _authRepository.InvalidatePasswordResetOtpsAsync(canBo.MaCanBo);
+            await _authRepository.CreatePasswordResetOtpAsync(new Passwordresetotp
+            {
+                MaCanBo = canBo.MaCanBo,
+                Otpcode = otpCode,
+                ExpiredAt = expiredAt,
+                IsUsed = false,
+                NgayTao = DateTime.Now
+            });
+            await _authRepository.SaveChangesAsync();
+
+            _ = TrySendPasswordResetOtpAsync(canBo, otpCode, expiredAt);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordDto dto)
+        {
+            var canBo = await _authRepository.GetByEmailAsync(dto.Email);
+            if (canBo == null || canBo.TrangThai != true)
+            {
+                throw new Exception("Email hoặc mã OTP không hợp lệ");
+            }
+
+            var otp = await _authRepository.GetValidPasswordResetOtpAsync(canBo.MaCanBo, dto.OtpCode);
+            if (otp == null)
+            {
+                throw new Exception("Email hoặc mã OTP không hợp lệ hoặc đã hết hạn");
+            }
+
+            canBo.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            otp.IsUsed = true;
+
+            await _authRepository.SaveChangesAsync();
+        }
+
+        private async Task TrySendPasswordResetOtpAsync(Canbo canBo, string otpCode, DateTime expiredAt)
+        {
+            try
+            {
+                await _emailService.SendPasswordResetOtpAsync(canBo, otpCode, expiredAt);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Khong gui duoc OTP dat lai mat khau den {Email}", canBo.Email);
+            }
         }
 
         private string GenerateJwtToken(
