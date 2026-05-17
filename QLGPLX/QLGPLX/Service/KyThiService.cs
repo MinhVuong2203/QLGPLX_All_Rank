@@ -155,7 +155,7 @@ namespace Backend.Service
                 if (hoSo.MaCongDanNavigation == null)
                     continue;
 
-                await TrySendEmailAsync(
+                _ = TrySendEmailAsync(
                     () => _emailService.SendHoSoAddedToKyThiAsync(
                         hoSo.MaCongDanNavigation,
                         hoSo,
