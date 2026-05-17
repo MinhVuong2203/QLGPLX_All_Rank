@@ -326,10 +326,10 @@ namespace Backend.Repository
 
             var ngayCapCu = giayPhep.NgayCap;
             var ngayHetHanCu = giayPhep.NgayHetHan;
-            var soNam = giayPhep.MaHangNavigation?.ThoiHanNam ?? 10;
+            var thoiHanNam = giayPhep.MaHangNavigation?.ThoiHanNam;
 
             giayPhep.NgayCap = today;
-            giayPhep.NgayHetHan = today.AddYears(soNam);
+            giayPhep.NgayHetHan = thoiHanNam.HasValue ? today.AddYears(thoiHanNam.Value) : null;
             giayPhep.SoDiem = 12;
             giayPhep.TrangThai = TrangThaiConHieuLuc;
             giayPhep.GhiChu = dto.GhiChu;

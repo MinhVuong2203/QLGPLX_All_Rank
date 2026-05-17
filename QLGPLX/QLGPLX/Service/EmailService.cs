@@ -96,7 +96,7 @@ public class EmailService : IEmailService
     private async Task SendAsync(string? toEmail, string subject, string htmlBody)
     {
         if (string.IsNullOrWhiteSpace(toEmail))
-            return;
+            throw new InvalidOperationException("Cấu hình email chưa đầy đủ");
 
         if (string.IsNullOrWhiteSpace(_settings.SmtpHost) ||
             string.IsNullOrWhiteSpace(_settings.FromPassword) ||

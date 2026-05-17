@@ -108,11 +108,11 @@ namespace Backend.Service
 
         public async Task ForgotPasswordAsync(ForgotPasswordDto dto)
         {
-            var canBo = await _authRepository.GetByEmailAsync(dto.Email);
+            var canBo = await _authRepository.GetByEmailAndCccdAsync(dto.Email, dto.Cccd);
 
             if (canBo == null || canBo.TrangThai != true)
             {
-                return;
+                throw new Exception("Email hoặc CCCD không khớp với tài khoản cán bộ");
             }
 
             var otpCode = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
@@ -129,7 +129,15 @@ namespace Backend.Service
             });
             await _authRepository.SaveChangesAsync();
 
-            _ = TrySendPasswordResetOtpAsync(canBo, otpCode, expiredAt);
+            try
+            {
+                await _emailService.SendPasswordResetOtpAsync(canBo, otpCode, expiredAt);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Khong gui duoc OTP dat lai mat khau den {Email}", canBo.Email);
+                throw new Exception("Không gửi được mã OTP. Vui lòng kiểm tra cấu hình Gmail hoặc thử lại sau");
+            }
         }
 
         public async Task ResetPasswordAsync(ResetPasswordDto dto)
