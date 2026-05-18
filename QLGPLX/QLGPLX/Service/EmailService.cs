@@ -96,19 +96,22 @@ public class EmailService : IEmailService
     private async Task SendAsync(string? toEmail, string subject, string htmlBody)
     {
         if (string.IsNullOrWhiteSpace(toEmail))
-            throw new InvalidOperationException("Cấu hình email chưa đầy đủ");
+            throw new InvalidOperationException("Email nguoi nhan khong hop le");
 
-        if (string.IsNullOrWhiteSpace(_settings.SmtpHost) ||
-            string.IsNullOrWhiteSpace(_settings.FromPassword) ||
-            string.IsNullOrWhiteSpace(_settings.FromEmail))
+        var smtpHost = _settings.SmtpHost?.Trim();
+        var fromEmail = _settings.FromEmail?.Trim();
+        var fromPassword = NormalizeGmailAppPassword(_settings.FromPassword);
+
+        if (string.IsNullOrWhiteSpace(smtpHost) ||
+            string.IsNullOrWhiteSpace(fromPassword) ||
+            string.IsNullOrWhiteSpace(fromEmail))
         {
-            _logger.LogWarning("Cấu hình email chưa đầy đủ. Bỏ qua gửi email đến {Email}", toEmail);
-            return;
+            throw new InvalidOperationException("Cau hinh Gmail chua day du. Can Email:FromEmail va Email:FromPassword");
         }
 
         using var message = new MailMessage
         {
-            From = new MailAddress(_settings.FromEmail, "Hệ thống QLGPLX", Encoding.UTF8),
+            From = new MailAddress(fromEmail, "He thong QLGPLX", Encoding.UTF8),
             Subject = subject,
             SubjectEncoding = Encoding.UTF8,
             Body = htmlBody,
@@ -118,13 +121,22 @@ public class EmailService : IEmailService
 
         message.To.Add(toEmail);
 
-        using var client = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
+        using var client = new SmtpClient(smtpHost, _settings.SmtpPort)
         {
             EnableSsl = true,
-            Credentials = new NetworkCredential(_settings.FromEmail, _settings.FromPassword)
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(fromEmail, fromPassword),
+            Timeout = 20000
         };
 
         await client.SendMailAsync(message);
+    }
+
+    private static string NormalizeGmailAppPassword(string? password)
+    {
+        return string.IsNullOrWhiteSpace(password)
+            ? string.Empty
+            : string.Concat(password.Where(c => !char.IsWhiteSpace(c)));
     }
 
     private static string BuildLayout(
