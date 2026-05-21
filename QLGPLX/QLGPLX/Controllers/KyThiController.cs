@@ -187,6 +187,10 @@ namespace Backend.Controllers
                     error = msg
                 });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new

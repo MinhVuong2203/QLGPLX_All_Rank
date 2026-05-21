@@ -141,13 +141,16 @@ namespace Backend.Service
 
         public async Task<bool> ThemHoSoVaoKyThiAsync(ThemHoSoVaoKyThiDTO dto)
         {
+            var kyThi = await _repository.GetByIdAsync(dto.KyThiID);
+            if (kyThi == null)
+                return false;
+
+            if (GetTrangThai(kyThi) == "Đã kết thúc")
+                throw new InvalidOperationException("Kỳ thi đã kết thúc, không thể thêm thí sinh");
+
             var success = await _repository.ThemHoSoVaoKyThiAsync(dto.KyThiID, dto.DanhSachHoSoID);
             if (!success)
                 return false;
-
-            var kyThi = await _repository.GetByIdAsync(dto.KyThiID);
-            if (kyThi == null)
-                return true;
 
             var hoSos = await _repository.GetHoSoByIdsAsync(dto.DanhSachHoSoID);
 
