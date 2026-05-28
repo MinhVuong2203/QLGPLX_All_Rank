@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Utils;
 
 namespace Backend.Repository
 {
@@ -50,10 +51,11 @@ namespace Backend.Repository
 
         public async Task<List<Congdan>> GetCongDanHomNay()
         {
-            var today = DateTime.Today;
+            var today = VietnamTime.Today;
+            var tomorrow = today.AddDays(1);
 
             return await _context.Congdans
-                .Where(cd => cd.NgayTao.HasValue && cd.NgayTao.Value.Date == today)
+                .Where(cd => cd.NgayTao.HasValue && cd.NgayTao.Value >= today && cd.NgayTao.Value < tomorrow)
                 .ToListAsync();
         }
 
