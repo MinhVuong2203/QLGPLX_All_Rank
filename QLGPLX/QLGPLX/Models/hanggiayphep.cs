@@ -31,6 +31,12 @@ public partial class Hanggiayphep
     [InverseProperty("MaHangNavigation")]
     public virtual ICollection<Giayphep> Giaypheps { get; set; } = new List<Giayphep>();
 
+    [InverseProperty("HangBatBuoc")]
+    public virtual ICollection<DieuKienHangGplx> DieuKienHangBatBuocs { get; set; } = new List<DieuKienHangGplx>();
+
+    [InverseProperty("HangDangKy")]
+    public virtual ICollection<DieuKienHangGplx> DieuKienHangDangKys { get; set; } = new List<DieuKienHangGplx>();
+
     [InverseProperty("MaHangNavigation")]
     public virtual ICollection<HangMonThi> HangMonThis { get; set; } = new List<HangMonThi>();
 

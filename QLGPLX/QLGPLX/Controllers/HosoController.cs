@@ -104,6 +104,28 @@ public class HosoController : ControllerBase
         }
     }
 
+    // GET: api/Hoso/dieu-kien-dang-ky?maHang=D1&maCongDan=1
+    //[Authorize(Policy = "HO_SO")]
+    [HttpGet("dieu-kien-dang-ky")]
+    public async Task<ActionResult<HoSoDieuKienDangKyDTO>> KiemTraDieuKienDangKy(
+        [FromQuery] string maHang,
+        [FromQuery] int? maCongDan)
+    {
+        try
+        {
+            var result = await _hosoService.KiemTraDieuKienDangKyAsync(maCongDan, maHang);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi kiểm tra điều kiện đăng ký", error = ex.Message });
+        }
+    }
+
     // POST: api/Hoso
     //[Authorize(Policy = "HO_SO")]
     [HttpPost]

@@ -12,4 +12,5 @@ public interface IHosoService
     Task<bool> DeleteAsync(int id);
     Task<List<HosoDTO>> GetByCongDanAsync(int maCongDan);
     Task<bool> ExistsByMaCongDanAndMaHangAsync(int maCongDan, string maHang);
+    Task<HoSoDieuKienDangKyDTO> KiemTraDieuKienDangKyAsync(int? maCongDan, string maHang);
 }
