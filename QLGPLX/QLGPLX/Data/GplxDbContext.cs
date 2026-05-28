@@ -20,6 +20,8 @@ public partial class GplxDbContext : DbContext
 
     public virtual DbSet<Congdan> Congdans { get; set; }
 
+    public virtual DbSet<DieuKienHangGplx> DieuKienHangGplxes { get; set; }
+
     public virtual DbSet<Giayphep> Giaypheps { get; set; }
 
     public virtual DbSet<HangMonThi> HangMonThis { get; set; }
@@ -94,6 +96,21 @@ public partial class GplxDbContext : DbContext
 
             entity.Property(e => e.NgayTao).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.TinhTrangSucKhoe).HasDefaultValueSql("'Khỏe mạnh'");
+        });
+
+        modelBuilder.Entity<DieuKienHangGplx>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.Property(e => e.NamToiThieu).HasDefaultValueSql("'0'");
+
+            entity.HasOne(d => d.HangBatBuoc).WithMany(p => p.DieuKienHangBatBuocs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("dieu_kien_hang_gplx_ibfk_2");
+
+            entity.HasOne(d => d.HangDangKy).WithMany(p => p.DieuKienHangDangKys)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("dieu_kien_hang_gplx_ibfk_1");
         });
 
         modelBuilder.Entity<Giayphep>(entity =>
