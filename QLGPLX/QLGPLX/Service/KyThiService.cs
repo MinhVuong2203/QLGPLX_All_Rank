@@ -3,6 +3,7 @@ using Backend.DTO.KyThi;
 using Backend.Service.Interface;
 using Backend.Models;
 using Backend.Repository;
+using Backend.Utils;
 
 namespace Backend.Service
 {
@@ -86,6 +87,12 @@ namespace Backend.Service
 
         public async Task<bool> DeleteKyThiAsync(int id)
         {
+            var kyThi = await _repository.GetByIdAsync(id);
+            if (kyThi == null) return false;
+
+            if (GetTrangThai(kyThi) != "Sắp diễn ra")
+                throw new InvalidOperationException("Chỉ được xóa kỳ thi sắp diễn ra");
+
             return await _repository.DeleteAsync(id);
         }
 
@@ -190,7 +197,7 @@ namespace Backend.Service
         private static void ApplyUpdateByStatus(Kythi kyThi, UpdateKyThiDTO updateDto)
         {
             var status = GetTrangThai(kyThi);
-            var today = DateOnly.FromDateTime(DateTime.Today);
+            var today = VietnamTime.TodayDate;
 
             if (status == "Đã kết thúc")
             {
@@ -254,7 +261,7 @@ namespace Backend.Service
 
         private static string GetTrangThai(Kythi kyThi)
         {
-            var today = DateOnly.FromDateTime(DateTime.Today);
+            var today = VietnamTime.TodayDate;
 
             if (kyThi.NgayBatDau > today) return "Sắp diễn ra";
             if (kyThi.NgayKetThuc < today) return "Đã kết thúc";
