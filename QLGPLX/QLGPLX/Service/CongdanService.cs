@@ -6,6 +6,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
+using Backend.Utils;
 namespace Backend.Service;
 public class CongdanService : ICongDanService
 {
@@ -26,7 +27,7 @@ public class CongdanService : ICongDanService
         {
             var congdan = _mapper.Map<Congdan>(dto);
             congdan.PublicId = Guid.NewGuid();
-            congdan.NgayTao = DateTime.Now;
+            congdan.NgayTao = VietnamTime.Now;
 
             // ===== AVATAR =====
             if (anh3x4 != null)

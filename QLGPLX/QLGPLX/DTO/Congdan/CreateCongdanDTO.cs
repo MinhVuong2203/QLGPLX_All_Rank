@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Backend.Utils;
 namespace Backend.DTO.Congdan;
 public class CreateCongdanDTO : IValidatableObject
 {
@@ -28,7 +29,7 @@ public class CreateCongdanDTO : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = VietnamTime.TodayDate;
         if (NgaySinh.Year < 1900)
         {
             yield return new ValidationResult(
