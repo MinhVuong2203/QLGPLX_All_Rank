@@ -155,11 +155,36 @@ namespace Backend.Service
             if (GetTrangThai(kyThi) == "Đã kết thúc")
                 throw new InvalidOperationException("Kỳ thi đã kết thúc, không thể thêm thí sinh");
 
+            if (dto.DanhSachHoSoID == null || !dto.DanhSachHoSoID.Any())
+                throw new InvalidOperationException("Vui lòng chọn ít nhất một hồ sơ");
+
+            var hoSos = await _repository.GetHoSoByIdsAsync(dto.DanhSachHoSoID);
+            if (hoSos.Count != dto.DanhSachHoSoID.Distinct().Count())
+                throw new InvalidOperationException("Danh sách hồ sơ không hợp lệ");
+
+            var saiHang = hoSos
+                .Where(h => !StringEquals(h.MaHang, kyThi.MaHang))
+                .Select(h => h.MaCongDanNavigation?.HoTen ?? $"Hồ sơ #{h.HoSoId}")
+                .ToList();
+            if (saiHang.Any())
+                throw new InvalidOperationException(
+                    $"Hồ sơ không thuộc hạng {kyThi.MaHang}: {string.Join(", ", saiHang)}");
+
+            var daCoKyThiKhac = await _repository.GetHoSoDaCoKyThiCungHangAsync(
+                dto.KyThiID,
+                kyThi.MaHang ?? "",
+                dto.DanhSachHoSoID);
+            if (daCoKyThiKhac.Any())
+            {
+                var names = daCoKyThiKhac
+                    .Select(h => h.MaCongDanNavigation?.HoTen ?? $"Hồ sơ #{h.HoSoId}");
+                throw new InvalidOperationException(
+                    $"Thí sinh đã đăng ký kỳ thi khác cùng hạng: {string.Join(", ", names)}");
+            }
+
             var success = await _repository.ThemHoSoVaoKyThiAsync(dto.KyThiID, dto.DanhSachHoSoID);
             if (!success)
                 return false;
-
-            var hoSos = await _repository.GetHoSoByIdsAsync(dto.DanhSachHoSoID);
 
             foreach (var hoSo in hoSos)
             {

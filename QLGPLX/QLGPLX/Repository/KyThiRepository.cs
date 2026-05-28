@@ -66,7 +66,10 @@ namespace Backend.Repository
                 .Include(h => h.MaCongDanNavigation)
                 .Include(h => h.MaHangNavigation)
                 .Where(h => h.TrangThai == "Đã duyệt" &&
-                           (string.IsNullOrEmpty(maHang) || h.MaHang == maHang))
+                           (string.IsNullOrEmpty(maHang) || h.MaHang == maHang) &&
+                           !_context.Ketquathis.Any(kq =>
+                               kq.HoSoId == h.HoSoId &&
+                               kq.KyThi.MaHang == h.MaHang))
                 .OrderByDescending(h => h.NgayNop)
                 .ToListAsync();
         }
@@ -90,6 +93,22 @@ namespace Backend.Repository
                 .Where(h => hoSoIds.Contains(h.HoSoId))
                 .Include(h => h.MaCongDanNavigation)
                 .Include(h => h.MaHangNavigation)
+                .ToListAsync();
+        }
+
+        public async Task<List<Hoso>> GetHoSoDaCoKyThiCungHangAsync(
+            int kyThiId,
+            string maHang,
+            List<int> hoSoIds)
+        {
+            return await _context.Hosos
+                .Include(h => h.MaCongDanNavigation)
+                .Where(h =>
+                    hoSoIds.Contains(h.HoSoId) &&
+                    _context.Ketquathis.Any(kq =>
+                        kq.HoSoId == h.HoSoId &&
+                        kq.KyThiId != kyThiId &&
+                        kq.KyThi.MaHang == maHang))
                 .ToListAsync();
         }
 
